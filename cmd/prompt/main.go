@@ -46,7 +46,7 @@ func main() {
 
 	// Define the payload with a system prompt
 	payload := RequestPayload{
-		Model: "gpt-4o-mini", // Use the model name for GPT-4 Mini if specified, otherwise default to "gpt-4".
+		Model: "gpt-4o-mini-2024-07-18",
 		Messages: []Message{
 			{Role: "system", Content: "You are a helpful assistant that provides concise and accurate information."},
 			{Role: "user", Content: "Translate the following English text to French: 'Hello, how are you?'"},
