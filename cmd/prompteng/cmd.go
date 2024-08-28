@@ -11,7 +11,7 @@ const promptTemplate = `System: {{.SystemPrompt}}
 Chat History:
 {{limitTokens .ChatHistory (multiply .MaxTokens 0.3)}}
 
-Context: {{limitTokens .RAGContext (multiply .MaxTokens 0.5)}}
+Context: {{limitTokens .RAGContext (multiply .MaxTokens 0.1)}}
 
 User: {{limitTokens .UserQuery (multiply .MaxTokens 0.2)}}`
 
