@@ -2,18 +2,20 @@ package main
 
 import (
 	"fmt"
+	"github.com/yonidavidson/gophercon-israel-2024/prompt"
+	"github.com/yonidavidson/gophercon-israel-2024/provider"
 	"html/template"
+	"os"
 	"strings"
 )
 
-const promptTemplate = `System: {{.SystemPrompt}}
-
+const promptTemplate = `<system>{{.SystemPrompt}}</system>
+<user>
 Chat History:
 {{limitTokens .ChatHistory (multiply .MaxTokens 0.3)}}
 
 Context: {{limitTokens .RAGContext (multiply .MaxTokens 0.1)}}
-
-User: {{limitTokens .UserQuery (multiply .MaxTokens 0.2)}}`
+User Query: {{limitTokens .UserQuery (multiply .MaxTokens 0.2)}}</user>`
 
 type PromptData struct {
 	MaxTokens    float64
@@ -24,7 +26,7 @@ type PromptData struct {
 }
 
 func generatePrompt(maxTokens int, ragContext, userQuery, chatHistory, systemPrompt string) (string, error) {
-	tmpl, err := template.New("prompt").Funcs(template.FuncMap{
+	tmpl, err := template.New("talk").Funcs(template.FuncMap{
 		"limitTokens": limitTokens,
 		"multiply": func(a, b float64) float64 {
 			return a * b
@@ -58,21 +60,37 @@ func limitTokens(s string, maxTokens float64) string {
 	if len(s) <= maxChars {
 		return s
 	}
-	return s[:maxChars] + "..."
+	return s[:maxChars]
 }
 
 func main() {
 	maxTokens := 100
 	ragContext := "Paris, the capital of France, is a major European city and a global center for art, fashion, gastronomy, and culture. Its 19th-century cityscape is crisscrossed by wide boulevards and the River Seine. Beyond such landmarks as the Eiffel Tower and the 12th-century, Gothic Notre-Dame cathedral, the city is known for its cafe culture and designer boutiques along the Rue du Faubourg Saint-Honoré."
-	userQuery := "Can you tell me about the history and main attractions of Paris? Also, what's the best time to visit and are there any local customs I should be aware of?"
-	chatHistory := "User: I'm planning a trip to Europe.\nAssistant: That's exciting! Europe has many wonderful destinations. Do you have any specific countries or cities in mind?\nUser: I'm thinking about visiting France.\nAssistant: France is a great choice! It offers a rich history, beautiful landscapes, and world-renowned cuisine. Are you interested in visiting Paris or exploring other regions as well?"
+	userQuery := "Can you tell me about the history and main attractions of Paris? Also, what`s the best time to visit and are there any local customs I should be aware of?"
+	chatHistory := "User: I`m planning a trip to Europe.\nAssistant: That`s exciting! Europe has many wonderful destinations. Do you have any specific countries or cities in mind?\nUser: I'm thinking about visiting France.\nAssistant: France is a great choice! It offers a rich history, beautiful landscapes, and world-renowned cuisine. Are you interested in visiting Paris or exploring other regions as well?"
 	systemPrompt := "You are a knowledgeable and helpful travel assistant. Provide accurate and concise information about destinations, attractions, local customs, and travel tips. When appropriate, suggest off-the-beaten-path experiences that tourists might not typically know about. Always prioritize the safety and cultural sensitivity of the traveler."
 
-	prompt, err := generatePrompt(maxTokens, ragContext, userQuery, chatHistory, systemPrompt)
+	prmt, err := generatePrompt(maxTokens, ragContext, userQuery, chatHistory, systemPrompt)
 	if err != nil {
-		fmt.Printf("Error generating prompt: %v\n", err)
+		fmt.Printf("Error generating talk: %v\n", err)
 		return
 	}
-
-	fmt.Println(prompt)
+	fmt.Println(prmt)
+	m, err := prompt.ParseMessages(prmt)
+	if err != nil {
+		fmt.Printf("Error parsing messages: %v\n", err)
+		return
+	}
+	apiKey := os.Getenv("PRIVATE_OPENAI_KEY")
+	if apiKey == "" {
+		fmt.Println("Error: PRIVATE_OPENAI_KEY environment variable not set")
+		return
+	}
+	p := provider.OpenAIProvider{APIKey: apiKey}
+	r, err := p.ChatCompletion(m)
+	if err != nil {
+		fmt.Printf("Error getting chat completion: %v\n", err)
+		return
+	}
+	fmt.Println("\n\n\n\n" + string(r))
 }
