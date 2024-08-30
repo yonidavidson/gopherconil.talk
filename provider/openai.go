@@ -39,7 +39,7 @@ type responsePayload struct {
 	Choices []choice `json:"choices"`
 }
 
-func (p OpenAIProvider) Response() {
+func (p OpenAIProvider) Response() ([]byte, error) {
 	// Define the payload with a system talk
 	payload := requestPayload{
 		Model: "gpt-4o-mini-2024-07-18",
@@ -57,15 +57,13 @@ func (p OpenAIProvider) Response() {
 	// Marshal the payload into JSON
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
-		fmt.Printf("Error marshaling JSON: %v\n", err)
-		return
+		return nil, err
 	}
 
 	// Create the HTTP request
 	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(payloadBytes))
 	if err != nil {
-		fmt.Printf("Error creating request: %v\n", err)
-		return
+		return nil, err
 	}
 
 	// Set the necessary headers
@@ -76,29 +74,23 @@ func (p OpenAIProvider) Response() {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Printf("Error executing request: %v\n", err)
-		return
+		return nil, err
 	}
 	defer resp.Body.Close()
-
 	// Read the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Printf("Error reading response body: %v\n", err)
-		return
+		return nil, err
 	}
 
 	// Check if the request was successful
-	if resp.StatusCode == http.StatusOK {
-		var responsePayload responsePayload
-		if err := json.Unmarshal(body, &responsePayload); err != nil {
-			fmt.Printf("Error unmarshaling response JSON: %v\n", err)
-			return
-		}
-
-		// Print the generated text
-		fmt.Println("Response:", responsePayload.Choices[0].Message.Content)
-	} else {
-		fmt.Printf("Error: %v - %s\n", resp.StatusCode, body)
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d, body: %s", resp.StatusCode, string(body))
 	}
+	var responsePayload responsePayload
+	if err := json.Unmarshal(body, &responsePayload); err != nil {
+		return nil, err
+	}
+
+	return []byte(responsePayload.Choices[0].Message.Content), nil
 }

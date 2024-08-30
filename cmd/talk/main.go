@@ -14,5 +14,10 @@ func main() {
 		return
 	}
 	p := provider.OpenAIProvider{APIKey: apiKey}
-	p.Response()
+	r, err := p.Response()
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	fmt.Println(string(r))
 }
