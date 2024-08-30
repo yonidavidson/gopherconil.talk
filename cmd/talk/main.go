@@ -15,8 +15,8 @@ func main() {
 		return
 	}
 	p := provider.OpenAIProvider{APIKey: apiKey}
-	messages, err := prompt.ParseMessages(`<system>You are a helpful assistant that provides concise and accurate information.</system>
-<user>Translate the following English text to French: 'Hello, how are you'</user>`)
+	messages, err := prompt.ParseMessages(`[system]You are a helpful assistant that provides concise and accurate information.[/system]
+[user]Translate the following English text to French: 'Hello, how are you'[/user]`)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return

@@ -29,7 +29,7 @@ func ParseMessages(input string) ([]Message, error) {
 	var messages []Message
 
 	// Regular expression to match tags and their content
-	re := regexp.MustCompile(`<(system|user|assistant)>([\s\S]*?)</(system|user|assistant)>`)
+	re := regexp.MustCompile(`\[(system|user|assistant)]([\s\S]*?)\[/(system|user|assistant)]`)
 
 	// Find all matches in the input string
 	matches := re.FindAllStringSubmatch(input, -1)
@@ -53,8 +53,8 @@ func ParseMessages(input string) ([]Message, error) {
 func validate(input string) error {
 	roles := []string{"system", "user", "assistant"}
 	for _, role := range roles {
-		openCount := strings.Count(input, "<"+role+">")
-		closeCount := strings.Count(input, "</"+role+">")
+		openCount := strings.Count(input, "["+role+"]")
+		closeCount := strings.Count(input, "[/"+role+"]")
 		if openCount != closeCount {
 			return fmt.Errorf("mismatched tags for role %s: %d opening, %d closing", role, openCount, closeCount)
 		}

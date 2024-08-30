@@ -15,8 +15,8 @@ func TestParseMessages(t *testing.T) {
 	}{
 		{
 			name: "System and User messages",
-			input: `<system>You are a helpful assistant</system>
-                    <user>Hello, how are you?</user>`,
+			input: `[system]You are a helpful assistant[/system]
+                    [user]Hello, how are you?[/user]`,
 			expected: []prompt.Message{
 				{Role: prompt.RoleSystem, Content: "You are a helpful assistant"},
 				{Role: prompt.RoleUser, Content: "Hello, how are you?"},
@@ -24,10 +24,10 @@ func TestParseMessages(t *testing.T) {
 		},
 		{
 			name: "System, User, and Assistant messages",
-			input: `<system>You are a helpful assistant</system>
-                    <user>What's the weather like?</user>
-                    <assistant>I'm sorry, I don't have real-time weather information. Could you please specify a location and I can provide general climate information?</assistant>
-                    <user>How about in New York?</user>`,
+			input: `[system]You are a helpful assistant[/system]
+                    [user]What's the weather like?[/user]
+                    [assistant]I'm sorry, I don't have real-time weather information. Could you please specify a location and I can provide general climate information?[/assistant]
+                    [user]How about in New York?[/user]`,
 			expected: []prompt.Message{
 				{Role: prompt.RoleSystem, Content: "You are a helpful assistant"},
 				{Role: prompt.RoleUser, Content: "What's the weather like?"},
@@ -57,9 +57,10 @@ func TestParseMessages(t *testing.T) {
 }
 
 func TestParseMessagesError(t *testing.T) {
-	input := `<system>Incomplete system message
-                    <user>User message without closing tag
-                    <assistant>Assistant message</assistant>`
+	input := `<
+[system]Incomplete system message
+                    [user]User message without closing tag
+                    [assistant]Assistant message[/assistant]`
 
 	_, err := prompt.ParseMessages(input)
 	if err == nil {
