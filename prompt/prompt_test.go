@@ -38,16 +38,7 @@ func TestParseMessages(t *testing.T) {
 		{
 			name:     "Empty input",
 			input:    "",
-			expected: []prompt.Message{},
-		},
-		{
-			name: "Malformed input",
-			input: `<system>Incomplete system message
-                    <user>User message without closing tag
-                    <assistant>Assistant message</assistant>`,
-			expected: []prompt.Message{
-				{Role: prompt.RoleAssistant, Content: "Assistant message"},
-			},
+			expected: nil,
 		},
 	}
 
@@ -62,5 +53,16 @@ func TestParseMessages(t *testing.T) {
 				t.Errorf("ParseMessages() = %v, want %v", result, tt.expected)
 			}
 		})
+	}
+}
+
+func TestParseMessagesError(t *testing.T) {
+	input := `<system>Incomplete system message
+                    <user>User message without closing tag
+                    <assistant>Assistant message</assistant>`
+
+	_, err := prompt.ParseMessages(input)
+	if err == nil {
+		t.Error("Expected an error, but got nil")
 	}
 }

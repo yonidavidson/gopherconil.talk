@@ -1,6 +1,7 @@
 package prompt
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 )
@@ -21,6 +22,10 @@ type Message struct {
 
 // ParseMessages parses the input string into a slice of messages.
 func ParseMessages(input string) ([]Message, error) {
+	// Validate tags before parsing
+	if err := validatetags(input); err != nil {
+		return nil, err
+	}
 	var messages []Message
 
 	// Regular expression to match tags and their content
@@ -42,4 +47,16 @@ func ParseMessages(input string) ([]Message, error) {
 	}
 
 	return messages, nil
+}
+
+func validatetags(input string) error {
+	roles := []string{"system", "user", "assistant"}
+	for _, role := range roles {
+		openCount := strings.Count(input, "<"+role+">")
+		closeCount := strings.Count(input, "</"+role+">")
+		if openCount != closeCount {
+			return fmt.Errorf("mismatched tags for role %s: %d opening, %d closing", role, openCount, closeCount)
+		}
+	}
+	return nil
 }
