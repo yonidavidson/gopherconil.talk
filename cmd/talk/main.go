@@ -44,7 +44,7 @@ func main() {
 		return
 	}
 
-	// Define the payload with a system prompt
+	// Define the payload with a system talk
 	payload := RequestPayload{
 		Model: "gpt-4o-mini-2024-07-18",
 		Messages: []Message{
