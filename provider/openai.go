@@ -39,7 +39,8 @@ type responsePayload struct {
 	Choices []choice `json:"choices"`
 }
 
-func (p OpenAIProvider) Response() ([]byte, error) {
+// ChatCompletion sends a request to the OpenAI API and returns the response as a byte slice.
+func (p OpenAIProvider) ChatCompletion() ([]byte, error) {
 	// Define the payload with a system talk
 	payload := requestPayload{
 		Model: "gpt-4o-mini-2024-07-18",
@@ -76,7 +77,12 @@ func (p OpenAIProvider) Response() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}(resp.Body)
 	// Read the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

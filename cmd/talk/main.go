@@ -14,7 +14,7 @@ func main() {
 		return
 	}
 	p := provider.OpenAIProvider{APIKey: apiKey}
-	r, err := p.Response()
+	r, err := p.ChatCompletion()
 	if err != nil {
 		fmt.Println("Error:", err)
 		return

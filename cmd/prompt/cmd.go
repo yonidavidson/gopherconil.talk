@@ -6,14 +6,13 @@ import (
 	"strings"
 )
 
-const promptTemplate = `System: {{.SystemPrompt}}
-
+const promptTemplate = `<system>{{.SystemPrompt}}</system>
+<user>
 Chat History:
 {{limitTokens .ChatHistory (multiply .MaxTokens 0.3)}}
 
 Context: {{limitTokens .RAGContext (multiply .MaxTokens 0.1)}}
-
-User: {{limitTokens .UserQuery (multiply .MaxTokens 0.2)}}`
+User Query: {{limitTokens .UserQuery (multiply .MaxTokens 0.2)}}</user>`
 
 type PromptData struct {
 	MaxTokens    float64
