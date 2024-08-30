@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/yonidavidson/gophercon-israel-2024/prompt"
 	"io"
 	"net/http"
 )
@@ -40,14 +41,19 @@ type responsePayload struct {
 }
 
 // ChatCompletion sends a request to the OpenAI API and returns the response as a byte slice.
-func (p OpenAIProvider) ChatCompletion() ([]byte, error) {
+func (p OpenAIProvider) ChatCompletion(m []prompt.Message) ([]byte, error) {
+	// convert from []prompt.Message to []message
+	messages := make([]message, len(m))
+	for i, m := range m {
+		messages[i] = message{
+			Role:    string(m.Role),
+			Content: m.Content,
+		}
+	}
 	// Define the payload with a system talk
 	payload := requestPayload{
-		Model: "gpt-4o-mini-2024-07-18",
-		Messages: []message{
-			{Role: "system", Content: "You are a helpful assistant that provides concise and accurate information."},
-			{Role: "user", Content: "Translate the following English text to French: 'Hello, how are you?'"},
-		},
+		Model:       "gpt-4o-mini-2024-07-18",
+		Messages:    messages,
 		MaxTokens:   60,
 		Temperature: 0.5,
 		TopP:        1.0,

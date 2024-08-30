@@ -23,7 +23,7 @@ type Message struct {
 // ParseMessages parses the input string into a slice of messages.
 func ParseMessages(input string) ([]Message, error) {
 	// Validate tags before parsing
-	if err := validatetags(input); err != nil {
+	if err := validate(input); err != nil {
 		return nil, err
 	}
 	var messages []Message
@@ -49,7 +49,8 @@ func ParseMessages(input string) ([]Message, error) {
 	return messages, nil
 }
 
-func validatetags(input string) error {
+// validate checks if the input string has matching opening and closing tags for each role.
+func validate(input string) error {
 	roles := []string{"system", "user", "assistant"}
 	for _, role := range roles {
 		openCount := strings.Count(input, "<"+role+">")

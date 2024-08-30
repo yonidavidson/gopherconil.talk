@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github/yonidavidson/gophercon2024/provider"
+	"github.com/yonidavidson/gophercon-israel-2024/prompt"
+	"github.com/yonidavidson/gophercon-israel-2024/provider"
 	"os"
 )
 
@@ -14,7 +15,13 @@ func main() {
 		return
 	}
 	p := provider.OpenAIProvider{APIKey: apiKey}
-	r, err := p.ChatCompletion()
+	messages, err := prompt.ParseMessages(`<system>You are a helpful assistant that provides concise and accurate information.</system>
+<user>Translate the following English text to French: 'Hello, how are you'</user>`)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	r, err := p.ChatCompletion(messages)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
