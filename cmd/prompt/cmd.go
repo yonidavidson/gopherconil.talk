@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/yonidavidson/gophercon-israel-2024/prompt"
+	"github.com/yonidavidson/gophercon-israel-2024/provider"
 	"html/template"
+	"os"
 	"strings"
 )
 
@@ -57,7 +60,7 @@ func limitTokens(s string, maxTokens float64) string {
 	if len(s) <= maxChars {
 		return s
 	}
-	return s[:maxChars] + "..."
+	return s[:maxChars]
 }
 
 func main() {
@@ -67,11 +70,27 @@ func main() {
 	chatHistory := "User: I`m planning a trip to Europe.\nAssistant: That`s exciting! Europe has many wonderful destinations. Do you have any specific countries or cities in mind?\nUser: I'm thinking about visiting France.\nAssistant: France is a great choice! It offers a rich history, beautiful landscapes, and world-renowned cuisine. Are you interested in visiting Paris or exploring other regions as well?"
 	systemPrompt := "You are a knowledgeable and helpful travel assistant. Provide accurate and concise information about destinations, attractions, local customs, and travel tips. When appropriate, suggest off-the-beaten-path experiences that tourists might not typically know about. Always prioritize the safety and cultural sensitivity of the traveler."
 
-	prompt, err := generatePrompt(maxTokens, ragContext, userQuery, chatHistory, systemPrompt)
+	prmt, err := generatePrompt(maxTokens, ragContext, userQuery, chatHistory, systemPrompt)
 	if err != nil {
 		fmt.Printf("Error generating talk: %v\n", err)
 		return
 	}
-
-	fmt.Println(prompt)
+	fmt.Println(prmt)
+	m, err := prompt.ParseMessages(prmt)
+	if err != nil {
+		fmt.Printf("Error parsing messages: %v\n", err)
+		return
+	}
+	apiKey := os.Getenv("PRIVATE_OPENAI_KEY")
+	if apiKey == "" {
+		fmt.Println("Error: PRIVATE_OPENAI_KEY environment variable not set")
+		return
+	}
+	p := provider.OpenAIProvider{APIKey: apiKey}
+	r, err := p.ChatCompletion(m)
+	if err != nil {
+		fmt.Printf("Error getting chat completion: %v\n", err)
+		return
+	}
+	fmt.Println("\n\n\n\n" + string(r))
 }

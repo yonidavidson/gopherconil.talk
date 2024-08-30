@@ -54,7 +54,7 @@ func (p OpenAIProvider) ChatCompletion(m []prompt.Message) ([]byte, error) {
 	payload := requestPayload{
 		Model:       "gpt-4o-mini-2024-07-18",
 		Messages:    messages,
-		MaxTokens:   60,
+		MaxTokens:   1000,
 		Temperature: 0.5,
 		TopP:        1.0,
 		N:           1,
