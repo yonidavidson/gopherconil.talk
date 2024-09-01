@@ -6,24 +6,36 @@ import (
 	"sort"
 )
 
-type rag struct {
-	provider provider.OpenAIProvider
-}
+type (
+	// Rag is a Retrieval Augmented Generation (RAG) struct
+	Rag struct {
+		provider provider.OpenAIProvider
+	}
 
-type embedding struct {
-	text   string
-	vector []float64
-}
+	// Embedding represents a text embedding
+	Embedding struct {
+		text   string
+		vector []float64
+	}
 
-type scoredEmbedding struct {
-	embedding
-	score float64
-}
+	// scoredEmbedding represents an Embedding with a score
+	scoredEmbedding struct {
+		Embedding
+		score float64
+	}
+)
 
 // Embed receives a large text and returns a slice embeddings
-func (r *rag) Embed(text string) ([]embedding, error) {
-	// Split the text into chunks (assuming a simple split by sentences for this example)
-	chunks := []string{text} // You might want to split the text into smaller chunks
+func (r *Rag) Embed(text string, chunkSize int) ([]Embedding, error) {
+	// Split the text into chunks of the specified size
+	var chunks []string
+	for i := 0; i < len(text); i += chunkSize {
+		end := i + chunkSize
+		if end > len(text) {
+			end = len(text)
+		}
+		chunks = append(chunks, text[i:end])
+	}
 
 	// Get embeddings for each chunk
 	vectors, err := r.provider.TextEmbedding(chunks)
@@ -32,9 +44,9 @@ func (r *rag) Embed(text string) ([]embedding, error) {
 	}
 
 	// Create embeddings slice
-	result := make([]embedding, len(chunks))
+	result := make([]Embedding, len(chunks))
 	for i, chunk := range chunks {
-		result[i] = embedding{
+		result[i] = Embedding{
 			text:   chunk,
 			vector: vectors,
 		}
@@ -44,14 +56,14 @@ func (r *rag) Embed(text string) ([]embedding, error) {
 }
 
 // Search receives a query and a slice of embeddings and returns the most relevant embeddings
-func (r *rag) Search(query string, embeddings []embedding) ([]embedding, error) {
-	// Get the embedding for the query
+func (r *Rag) Search(query string, embeddings []Embedding) ([]Embedding, error) {
+	// Get the Embedding for the query
 	queryEmbedding, err := r.provider.TextEmbedding([]string{query})
 	if err != nil {
 		return nil, err
 	}
 
-	// Calculate the similarity between the query embedding and each text embedding
+	// Calculate the similarity between the query Embedding and each text Embedding
 
 	var scoredEmbeddings []scoredEmbedding
 	for _, emb := range embeddings {
@@ -65,9 +77,9 @@ func (r *rag) Search(query string, embeddings []embedding) ([]embedding, error) 
 	})
 
 	// Convert scored embeddings back to the original embeddings type
-	result := make([]embedding, len(scoredEmbeddings))
+	result := make([]Embedding, len(scoredEmbeddings))
 	for i, se := range scoredEmbeddings {
-		result[i] = se.embedding
+		result[i] = se.Embedding
 	}
 
 	return result, nil
