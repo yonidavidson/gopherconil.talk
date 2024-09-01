@@ -72,17 +72,16 @@ func main() {
 		fmt.Printf("Error embedding text: %v\n", err)
 		return
 	}
-
-	ragContext, err := r.Search("conclusions of the experiment", es)
+	fmt.Printf("Number of embeddings: %d\n", len(es))
+	userQuery := "Recommendations for Further Studies"
+	ragContext, err := r.Search(userQuery, es)
 	if err != nil {
 		fmt.Printf("Error searching text: %v\n", err)
 		return
 	}
 
-	maxTokens := 1000
-	//ragContext := "Paris, the capital of France, is a major European city and a global center for art, fashion, gastronomy, and culture. Its 19th-century cityscape is crisscrossed by wide boulevards and the River Seine. Beyond such landmarks as the Eiffel Tower and the 12th-century, Gothic Notre-Dame cathedral, the city is known for its cafe culture and designer boutiques along the Rue du Faubourg Saint-Honoré."
-	userQuery := "Can you tell me about the history and main attractions of Paris? Also, what`s the best time to visit and are there any local customs I should be aware of?"
-	systemPrompt := "You are a knowledgeable and helpful travel assistant. Provide accurate and concise information about destinations, attractions, local customs, and travel tips. When appropriate, suggest off-the-beaten-path experiences that tourists might not typically know about. Always prioritize the safety and cultural sensitivity of the traveler."
+	maxTokens := 200
+	systemPrompt := "You are an AI researcher that has done research on radio signals and detection in deep learning."
 
 	prmt, err := generatePrompt(maxTokens, string(ragContext), userQuery, systemPrompt)
 	if err != nil {
@@ -236,5 +235,4 @@ Future research should explore the application of this methodology to edge devic
 
 Bibliography:
 The thesis references a range of studies on deep learning, modulation techniques, and signal processing, providing a comprehensive foundation for the research.
-
 `
