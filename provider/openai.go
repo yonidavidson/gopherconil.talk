@@ -122,7 +122,7 @@ func (p OpenAIProvider) ChatCompletion(m []prompt.Message) ([]byte, error) {
 }
 
 // TextEmbedding sends a request to the OpenAI API to get text embeddings and returns the response as a slice of float64.
-func (p OpenAIProvider) TextEmbedding(input []string) ([]float64, error) {
+func (p OpenAIProvider) TextEmbedding(input []string) ([][]float64, error) {
 	// Define the payload
 	payload := embeddingRequestPayload{
 		Model: "text-embedding-3-small",
@@ -175,10 +175,11 @@ func (p OpenAIProvider) TextEmbedding(input []string) ([]float64, error) {
 		return nil, err
 	}
 
-	// Assuming we are interested in the first embedding in the response
-	if len(responsePayload.Data) == 0 {
-		return nil, fmt.Errorf("no embedding data found in the response")
+	// Convert the embedding data to the expected return type
+	embeddings := make([][]float64, len(responsePayload.Data))
+	for i, emb := range responsePayload.Data {
+		embeddings[i] = emb.Embedding
 	}
 
-	return responsePayload.Data[0].Embedding, nil
+	return embeddings, nil
 }

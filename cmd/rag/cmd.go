@@ -23,12 +23,7 @@ type PromptData struct {
 }
 
 func generatePrompt(maxTokens int, ragContext, userQuery, systemPrompt string) (string, error) {
-	tmpl, err := template.New("talk").Funcs(template.FuncMap{
-		"limitTokens": limitTokens,
-		"multiply": func(a, b float64) float64 {
-			return a * b
-		},
-	}).Parse(promptTemplate)
+	tmpl, err := template.New("rag").Parse(promptTemplate)
 	if err != nil {
 		return "", fmt.Errorf("error parsing template: %v", err)
 	}
@@ -49,16 +44,6 @@ func generatePrompt(maxTokens int, ragContext, userQuery, systemPrompt string) (
 	return result.String(), nil
 }
 
-func limitTokens(s string, maxTokens float64) string {
-	const avgTokenLength = 4 // Average token length heuristic
-	maxChars := int(maxTokens * avgTokenLength)
-
-	if len(s) <= maxChars {
-		return s
-	}
-	return s[:maxChars]
-}
-
 func main() {
 	apiKey := os.Getenv("PRIVATE_OPENAI_KEY")
 	if apiKey == "" {
@@ -67,23 +52,22 @@ func main() {
 	}
 	p := provider.OpenAIProvider{APIKey: apiKey}
 	r := rag.New(p)
-	es, err := r.Embed(txt, 2048)
+	es, err := r.Embed(txt, 1000)
 	if err != nil {
 		fmt.Printf("Error embedding text: %v\n", err)
 		return
 	}
 	fmt.Printf("Number of embeddings: %d\n", len(es))
-	userQuery := "Recommendations for Further Studies"
+	userQuery := "What where the conclusions of the research?"
 	ragContext, err := r.Search(userQuery, es)
 	if err != nil {
 		fmt.Printf("Error searching text: %v\n", err)
 		return
 	}
 
-	maxTokens := 200
-	systemPrompt := "You are an AI researcher that has done research on radio signals and detection in deep learning."
+	systemPrompt := "Answer the following question based only on the provided context:"
 
-	prmt, err := generatePrompt(maxTokens, string(ragContext), userQuery, systemPrompt)
+	prmt, err := generatePrompt(10000, string(ragContext), userQuery, systemPrompt)
 	if err != nil {
 		fmt.Printf("Error generating talk: %v\n", err)
 		return

@@ -55,7 +55,7 @@ func (r *Rag) Embed(text string, chunkSize int) ([]Embedding, error) {
 	for i, chunk := range chunks {
 		result[i] = Embedding{
 			text:   chunk,
-			vector: vectors,
+			vector: vectors[i],
 		}
 	}
 
@@ -74,7 +74,7 @@ func (r *Rag) Search(query string, embeddings []Embedding) ([]byte, error) {
 
 	var scoredEmbeddings []scoredEmbedding
 	for _, emb := range embeddings {
-		score := cosineSimilarity(queryEmbedding, emb.vector)
+		score := cosineSimilarity(queryEmbedding[0], emb.vector)
 		scoredEmbeddings = append(scoredEmbeddings, scoredEmbedding{emb, score})
 	}
 
