@@ -25,6 +25,13 @@ type (
 	}
 )
 
+// New creates a new Rag struct
+func New(provider provider.OpenAIProvider) *Rag {
+	return &Rag{
+		provider: provider,
+	}
+}
+
 // Embed receives a large text and returns a slice embeddings
 func (r *Rag) Embed(text string, chunkSize int) ([]Embedding, error) {
 	// Split the text into chunks of the specified size
@@ -56,7 +63,7 @@ func (r *Rag) Embed(text string, chunkSize int) ([]Embedding, error) {
 }
 
 // Search receives a query and a slice of embeddings and returns the most relevant embeddings
-func (r *Rag) Search(query string, embeddings []Embedding) ([]Embedding, error) {
+func (r *Rag) Search(query string, embeddings []Embedding) ([]byte, error) {
 	// Get the Embedding for the query
 	queryEmbedding, err := r.provider.TextEmbedding([]string{query})
 	if err != nil {
@@ -82,7 +89,7 @@ func (r *Rag) Search(query string, embeddings []Embedding) ([]Embedding, error) 
 		result[i] = se.Embedding
 	}
 
-	return result, nil
+	return []byte(result[0].text), nil
 }
 
 // cosineSimilarity calculates the cosine similarity between two vectors
