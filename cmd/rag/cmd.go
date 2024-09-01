@@ -12,7 +12,9 @@ import (
 
 const promptTemplate = `[system]{{.SystemPrompt}}[/system]
 [user]
-Context: {{.RAGContext}}
+Context: 
+{{.RAGContext}}
+
 User Query: {{.UserQuery}}[/user]`
 
 type PromptData struct {
