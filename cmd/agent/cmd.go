@@ -25,6 +25,12 @@ type PromptData struct {
 	SystemPrompt string
 }
 
+type agent struct {
+	p provider.OpenAIProvider
+	r *rag.Rag
+	e []rag.Embedding
+}
+
 func generatePrompt(maxTokens int, ragContext, userQuery, systemPrompt string) (string, error) {
 	tmpl, err := template.New("rag").Parse(promptTemplate)
 	if err != nil {
@@ -60,32 +66,33 @@ func main() {
 		fmt.Printf("Error embedding text: %v\n", err)
 		return
 	}
-	userQuery := "What where the conclusions of the research?"
-	ragContext, err := r.Search(userQuery, es)
+	a := agent{p: p, r: r, e: es}
+	c, err := a.handleUserQuery("Answer the following question based only on the provided context:", "What where the conclusions of the research?")
 	if err != nil {
-		fmt.Printf("Error searching text: %v\n", err)
-		return
-	}
-
-	systemPrompt := "Answer the following question based only on the provided context:"
-
-	prmt, err := generatePrompt(10000, string(ragContext), userQuery, systemPrompt)
-	if err != nil {
-		fmt.Printf("Error generating talk: %v\n", err)
-		return
-	}
-	m, err := prompt.ParseMessages(prmt)
-	if err != nil {
-		fmt.Printf("Error parsing messages: %v\n", err)
-		return
-	}
-
-	c, err := p.ChatCompletion(m)
-	if err != nil {
-		fmt.Printf("Error getting chat completion: %v\n", err)
+		fmt.Printf("Error handling user query: %v\n", err)
 		return
 	}
 	fmt.Println(string(c))
+}
+
+func (a agent) handleUserQuery(systemPrompt, userQuery string) ([]byte, error) {
+	ragContext, err := a.r.Search(userQuery, a.e)
+	if err != nil {
+		return nil, fmt.Errorf("error searching text: %v", err)
+	}
+	prmt, err := generatePrompt(10000, string(ragContext), userQuery, systemPrompt)
+	if err != nil {
+		return nil, fmt.Errorf("error generating prompt: %v", err)
+	}
+	m, err := prompt.ParseMessages(prmt)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing messages: %v", err)
+	}
+	c, err := a.p.ChatCompletion(m)
+	if err != nil {
+		return nil, fmt.Errorf("error getting chat completion: %v", err)
+	}
+	return c, nil
 }
 
 var txt = `
