@@ -8,12 +8,21 @@ import (
 	"os"
 )
 
-const promptTemplate = `<system>{{.SystemPrompt}}</system>
+const ragPromptTemplate = `<system>{{.SystemPrompt}}</system>
 <user>
 {{if .RAGContext}}Context: 
 {{.RAGContext}}{{end}}
 
 User Query: {{.UserQuery}}</user>`
+
+const contentPromptTemplate = `<system>You are a API that returns a structured json based on content </system>
+<user>
+Based on this content:
+{{.UserQuery}} 
+return a list of questions to ask in a json as follows:
+{"questions": ["question1", "question2"]}
+each question should as for an insight on the content.
+</user>`
 
 func main() {
 	apiKey := os.Getenv("PRIVATE_OPENAI_KEY")
@@ -28,9 +37,11 @@ func main() {
 		fmt.Printf("Error embedding text: %v\n", err)
 		return
 	}
-	a := agent.New(p, r, es)
-	c, err := a.HandleUserQuery(
-		promptTemplate,
+	ra := agent.New(p, r, es)
+	sa := agent.New(p, nil, nil)
+
+	crag, err := ra.HandleUserQuery(
+		ragPromptTemplate,
 		"Answer the following question based only on the provided context:",
 		"What where the conclusions of the research?",
 	)
@@ -38,7 +49,19 @@ func main() {
 		fmt.Printf("Error handling user query: %v\n", err)
 		return
 	}
-	fmt.Println(string(c))
+	fmt.Println(string(crag))
+
+	csimple, err := sa.HandleUserQuery(
+		contentPromptTemplate,
+		"",
+		string(crag),
+	)
+	if err != nil {
+		fmt.Printf("Error handling user query: %v\n", err)
+		return
+	}
+	fmt.Println(string(csimple))
+
 }
 
 var txt = `

@@ -34,11 +34,15 @@ func New(p provider.OpenAIProvider, r *rag.Rag, e []rag.Embedding) *Agent {
 
 // HandleUserQuery takes a user query, retrieves relevant context using RAG, generates a prompt,
 func (a Agent) HandleUserQuery(promptTemplate, systemPrompt, userQuery string) ([]byte, error) {
-	ragContext, err := a.r.Search(userQuery, a.e)
-	if err != nil {
-		return nil, fmt.Errorf("error searching text: %v", err)
+	var ragContext string
+	if a.r != nil && a.e != nil {
+		rc, err := a.r.Search(userQuery, a.e)
+		if err != nil {
+			return nil, fmt.Errorf("error searching text: %v", err)
+		}
+		ragContext = string(rc)
 	}
-	prmt, err := generatePrompt(promptTemplate, string(ragContext), userQuery, systemPrompt)
+	prmt, err := generatePrompt(promptTemplate, ragContext, userQuery, systemPrompt)
 	if err != nil {
 		return nil, fmt.Errorf("error generating prompt: %v", err)
 	}
