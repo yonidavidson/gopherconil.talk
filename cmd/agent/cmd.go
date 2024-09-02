@@ -2,13 +2,10 @@ package main
 
 import (
 	"fmt"
-	"html/template"
-	"os"
-	"strings"
-
-	"github.com/yonidavidson/gophercon-israel-2024/prompt"
+	"github.com/yonidavidson/gophercon-israel-2024/agent"
 	"github.com/yonidavidson/gophercon-israel-2024/provider"
 	"github.com/yonidavidson/gophercon-israel-2024/rag"
+	"os"
 )
 
 const promptTemplate = `[system]{{.SystemPrompt}}[/system]
@@ -17,41 +14,6 @@ const promptTemplate = `[system]{{.SystemPrompt}}[/system]
 {{.RAGContext}}{{end}}
 
 User Query: {{.UserQuery}}[/user]`
-
-type PromptData struct {
-	MaxTokens    float64
-	RAGContext   string
-	UserQuery    string
-	SystemPrompt string
-}
-
-type agent struct {
-	p provider.OpenAIProvider
-	r *rag.Rag
-	e []rag.Embedding
-}
-
-func generatePrompt(maxTokens int, ragContext, userQuery, systemPrompt string) (string, error) {
-	tmpl, err := template.New("rag").Parse(promptTemplate)
-	if err != nil {
-		return "", fmt.Errorf("error parsing template: %v", err)
-	}
-
-	data := PromptData{
-		MaxTokens:    float64(maxTokens),
-		RAGContext:   ragContext,
-		UserQuery:    userQuery,
-		SystemPrompt: systemPrompt,
-	}
-
-	var result strings.Builder
-	err = tmpl.Execute(&result, data)
-	if err != nil {
-		return "", fmt.Errorf("error executing template: %v", err)
-	}
-
-	return result.String(), nil
-}
 
 func main() {
 	apiKey := os.Getenv("PRIVATE_OPENAI_KEY")
@@ -66,33 +28,17 @@ func main() {
 		fmt.Printf("Error embedding text: %v\n", err)
 		return
 	}
-	a := agent{p: p, r: r, e: es}
-	c, err := a.handleUserQuery("Answer the following question based only on the provided context:", "What where the conclusions of the research?")
+	a := agent.New(p, r, es)
+	c, err := a.HandleUserQuery(
+		promptTemplate,
+		"Answer the following question based only on the provided context:",
+		"What where the conclusions of the research?",
+	)
 	if err != nil {
 		fmt.Printf("Error handling user query: %v\n", err)
 		return
 	}
 	fmt.Println(string(c))
-}
-
-func (a agent) handleUserQuery(systemPrompt, userQuery string) ([]byte, error) {
-	ragContext, err := a.r.Search(userQuery, a.e)
-	if err != nil {
-		return nil, fmt.Errorf("error searching text: %v", err)
-	}
-	prmt, err := generatePrompt(10000, string(ragContext), userQuery, systemPrompt)
-	if err != nil {
-		return nil, fmt.Errorf("error generating prompt: %v", err)
-	}
-	m, err := prompt.ParseMessages(prmt)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing messages: %v", err)
-	}
-	c, err := a.p.ChatCompletion(m)
-	if err != nil {
-		return nil, fmt.Errorf("error getting chat completion: %v", err)
-	}
-	return c, nil
 }
 
 var txt = `
