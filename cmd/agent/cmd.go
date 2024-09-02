@@ -23,6 +23,7 @@ Based on this content:
 return a list of questions to ask in a json as follows:
 {"questions": ["question1", "question2"]}
 each question should as for an insight on the content.
+make the questions rather short no more then 5 words.
 limit the number of questions to 3.
 </user>`
 
