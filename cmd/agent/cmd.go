@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/yonidavidson/gophercon-israel-2024/agent"
 	"github.com/yonidavidson/gophercon-israel-2024/provider"
@@ -22,6 +23,7 @@ Based on this content:
 return a list of questions to ask in a json as follows:
 {"questions": ["question1", "question2"]}
 each question should as for an insight on the content.
+limit the number of questions to 3.
 </user>`
 
 func main() {
@@ -61,6 +63,25 @@ func main() {
 		return
 	}
 	fmt.Println(string(csimple))
+	var questions struct {
+		Questions []string `json:"questions"`
+	}
+	if err := json.Unmarshal(csimple, &questions); err != nil {
+		fmt.Println("Error parsing JSON:", err)
+		return
+	}
+	for _, question := range questions.Questions {
+		crag, err := ra.HandleUserQuery(
+			ragPromptTemplate,
+			"Answer the following question based only on the provided context:",
+			question,
+		)
+		if err != nil {
+			fmt.Printf("Error handling user query: %v\n", err)
+			return
+		}
+		fmt.Println(string(crag))
+	}
 
 }
 
