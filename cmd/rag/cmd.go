@@ -10,12 +10,12 @@ import (
 	"strings"
 )
 
-const promptTemplate = `[system]{{.SystemPrompt}}[/system]
-[user]
+const promptTemplate = `<system>{{.SystemPrompt}}</system>
+<user>
 Context: 
 {{.RAGContext}}
 
-User Query: {{.UserQuery}}[/user]`
+User Query: {{.UserQuery}}</user>`
 
 type PromptData struct {
 	MaxTokens    float64

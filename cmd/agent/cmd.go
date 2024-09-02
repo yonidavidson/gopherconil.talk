@@ -8,12 +8,12 @@ import (
 	"os"
 )
 
-const promptTemplate = `[system]{{.SystemPrompt}}[/system]
-[user]
+const promptTemplate = `<system>{{.SystemPrompt}}</system>
+<user>
 {{if .RAGContext}}Context: 
 {{.RAGContext}}{{end}}
 
-User Query: {{.UserQuery}}[/user]`
+User Query: {{.UserQuery}}</user>`
 
 func main() {
 	apiKey := os.Getenv("PRIVATE_OPENAI_KEY")
