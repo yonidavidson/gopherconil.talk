@@ -1,50 +1,31 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/yonidavidson/gophercon-israel-2024/prompt"
+	"github.com/yonidavidson/gophercon-israel-2024/agent"
 	"github.com/yonidavidson/gophercon-israel-2024/provider"
 	"github.com/yonidavidson/gophercon-israel-2024/rag"
-	"html/template"
 	"os"
-	"strings"
 )
 
-const promptTemplate = `<system>{{.SystemPrompt}}</system>
+const ragAgentTemplate = `<system>{{.SystemPrompt}}</system>
 <user>
-Context: 
-{{.RAGContext}}
+{{if .RAGContext}}Context: 
+{{.RAGContext}}{{end}}
 
 User Query: {{.UserQuery}}</user>`
 
-type PromptData struct {
-	MaxTokens    float64
-	RAGContext   string
-	UserQuery    string
-	SystemPrompt string
-}
-
-func generatePrompt(maxTokens int, ragContext, userQuery, systemPrompt string) (string, error) {
-	tmpl, err := template.New("rag").Parse(promptTemplate)
-	if err != nil {
-		return "", fmt.Errorf("error parsing template: %v", err)
-	}
-
-	data := PromptData{
-		MaxTokens:    float64(maxTokens),
-		RAGContext:   ragContext,
-		UserQuery:    userQuery,
-		SystemPrompt: systemPrompt,
-	}
-
-	var result strings.Builder
-	err = tmpl.Execute(&result, data)
-	if err != nil {
-		return "", fmt.Errorf("error executing template: %v", err)
-	}
-
-	return result.String(), nil
-}
+const structuredDataAgentTemplate = `<system>You are a API that returns a structured json based on content </system>
+<user>
+Based on this content:
+{{.UserQuery}} 
+return a list of questions to ask in a json as follows:
+{"questions": ["question1", "question2"]}
+each question should as for an insight on the content.
+make the questions rather short no more then 5 words.
+limit the number of questions to 3.
+</user>`
 
 func main() {
 	apiKey := os.Getenv("PRIVATE_OPENAI_KEY")
@@ -59,34 +40,58 @@ func main() {
 		fmt.Printf("Error embedding text: %v\n", err)
 		return
 	}
-	fmt.Printf("Number of embeddings: %d\n", len(es))
-	userQuery := "What where the conclusions of the research?"
-	ragContext, err := r.Search(userQuery, es)
+	ra := agent.New(p, r, es)
+	sa := agent.New(p, nil, nil)
+
+	rac, err := ra.HandleUserQuery(
+		ragAgentTemplate,
+		"Answer the following question based only on the provided context:",
+		"What where the conclusions of the research?",
+	)
 	if err != nil {
-		fmt.Printf("Error searching text: %v\n", err)
+		fmt.Printf("Error handling user query: %v\n", err)
 		return
+	}
+	printRagAgentResponse(rac)
+
+	sac, err := sa.HandleUserQuery(
+		structuredDataAgentTemplate,
+		"",
+		string(rac),
+	)
+	if err != nil {
+		fmt.Printf("Error handling user query: %v\n", err)
+		return
+	}
+	printStructuredDataAgentResponse(sac)
+	var questions struct {
+		Questions []string `json:"questions"`
+	}
+	if err := json.Unmarshal(sac, &questions); err != nil {
+		fmt.Println("Error parsing JSON:", err)
+		return
+	}
+	for _, question := range questions.Questions {
+		crag, err := ra.HandleUserQuery(
+			ragAgentTemplate,
+			"Answer the following question based only on the provided context:",
+			question,
+		)
+		if err != nil {
+			fmt.Printf("Error handling user query: %v\n", err)
+			return
+		}
+		printRagAgentResponse(crag)
 	}
 
-	systemPrompt := "Answer the following question based only on the provided context:"
+}
 
-	prmt, err := generatePrompt(10000, string(ragContext), userQuery, systemPrompt)
-	if err != nil {
-		fmt.Printf("Error generating talk: %v\n", err)
-		return
-	}
-	fmt.Println(prmt)
-	m, err := prompt.ParseMessages(prmt)
-	if err != nil {
-		fmt.Printf("Error parsing messages: %v\n", err)
-		return
-	}
+func printRagAgentResponse(response []byte) {
+	fmt.Println("***Rag Agent***" + "\n" + string(response) + "\n")
+}
 
-	c, err := p.ChatCompletion(m)
-	if err != nil {
-		fmt.Printf("Error getting chat completion: %v\n", err)
-		return
-	}
-	fmt.Println("\n\n\n\n" + string(c))
+func printStructuredDataAgentResponse(response []byte) {
+	fmt.Println("***Structured Data Agent***" + "\n" + string(response) + "\n")
 }
 
 var txt = `
