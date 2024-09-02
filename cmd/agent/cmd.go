@@ -9,14 +9,14 @@ import (
 	"os"
 )
 
-const ragPromptTemplate = `<system>{{.SystemPrompt}}</system>
+const ragAgentTemplate = `<system>{{.SystemPrompt}}</system>
 <user>
 {{if .RAGContext}}Context: 
 {{.RAGContext}}{{end}}
 
 User Query: {{.UserQuery}}</user>`
 
-const contentPromptTemplate = `<system>You are a API that returns a structured json based on content </system>
+const structuredDataAgentTemplate = `<system>You are a API that returns a structured json based on content </system>
 <user>
 Based on this content:
 {{.UserQuery}} 
@@ -42,8 +42,8 @@ func main() {
 	ra := agent.New(p, r, es)
 	sa := agent.New(p, nil, nil)
 
-	crag, err := ra.HandleUserQuery(
-		ragPromptTemplate,
+	rac, err := ra.HandleUserQuery(
+		ragAgentTemplate,
 		"Answer the following question based only on the provided context:",
 		"What where the conclusions of the research?",
 	)
@@ -51,28 +51,28 @@ func main() {
 		fmt.Printf("Error handling user query: %v\n", err)
 		return
 	}
-	fmt.Println(string(crag))
+	printRagAgentResponse(rac)
 
-	csimple, err := sa.HandleUserQuery(
-		contentPromptTemplate,
+	sac, err := sa.HandleUserQuery(
+		structuredDataAgentTemplate,
 		"",
-		string(crag),
+		string(rac),
 	)
 	if err != nil {
 		fmt.Printf("Error handling user query: %v\n", err)
 		return
 	}
-	fmt.Println(string(csimple))
+	printStructuredDataAgentResponse(sac)
 	var questions struct {
 		Questions []string `json:"questions"`
 	}
-	if err := json.Unmarshal(csimple, &questions); err != nil {
+	if err := json.Unmarshal(sac, &questions); err != nil {
 		fmt.Println("Error parsing JSON:", err)
 		return
 	}
 	for _, question := range questions.Questions {
 		crag, err := ra.HandleUserQuery(
-			ragPromptTemplate,
+			ragAgentTemplate,
 			"Answer the following question based only on the provided context:",
 			question,
 		)
@@ -80,9 +80,17 @@ func main() {
 			fmt.Printf("Error handling user query: %v\n", err)
 			return
 		}
-		fmt.Println(string(crag))
+		printRagAgentResponse(crag)
 	}
 
+}
+
+func printRagAgentResponse(response []byte) {
+	fmt.Println("***Rag Agent***" + "\n" + string(response) + "\n")
+}
+
+func printStructuredDataAgentResponse(response []byte) {
+	fmt.Println("***Structured Data Agent***" + "\n" + string(response) + "\n")
 }
 
 var txt = `
