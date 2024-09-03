@@ -27,6 +27,7 @@ func ParseMessages(input string, data any) ([]Message, error) {
 	if err != nil {
 		return nil, err
 	}
+	input = string(pt)
 	// Validate tags before parsing
 	if err := validate(pt); err != nil {
 		return nil, err
