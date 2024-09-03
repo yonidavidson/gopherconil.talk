@@ -4,17 +4,14 @@ import (
 	"fmt"
 	"github.com/yonidavidson/gophercon-israel-2024/prompt"
 	"github.com/yonidavidson/gophercon-israel-2024/provider"
-	"os"
 )
 
 func main() {
-	// Retrieve the API key from the environment variable
-	apiKey := os.Getenv("PRIVATE_OPENAI_KEY")
-	if apiKey == "" {
-		fmt.Println("Error: PRIVATE_OPENAI_KEY environment variable not set")
+	p, err := provider.NewOpenAIProvider()
+	if err != nil {
+		fmt.Println("Error:", err)
 		return
 	}
-	p := provider.OpenAIProvider{APIKey: apiKey}
 	messages := []prompt.Message{
 		{
 			Role:    prompt.RoleSystem,

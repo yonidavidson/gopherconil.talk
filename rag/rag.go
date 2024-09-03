@@ -9,7 +9,7 @@ import (
 type (
 	// Rag is a Retrieval Augmented Generation (RAG) struct
 	Rag struct {
-		provider provider.OpenAIProvider
+		provider *provider.OpenAIProvider
 	}
 
 	// Embedding represents a text embedding
@@ -26,7 +26,7 @@ type (
 )
 
 // New creates a new Rag struct
-func New(provider provider.OpenAIProvider) *Rag {
+func New(provider *provider.OpenAIProvider) *Rag {
 	return &Rag{
 		provider: provider,
 	}

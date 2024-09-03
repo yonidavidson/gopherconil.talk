@@ -9,7 +9,7 @@ import (
 
 // Agent represents a conversational agent that uses a language model and retrieval-augmented generation (RAG) to answer questions.
 type Agent struct {
-	p provider.OpenAIProvider
+	p *provider.OpenAIProvider
 	r *rag.Rag
 	e []rag.Embedding
 }
@@ -21,7 +21,7 @@ type promptData struct {
 }
 
 // New creates a new instance of Agent with the provided OpenAI provider, RAG instance, and embeddings
-func New(p provider.OpenAIProvider, r *rag.Rag, e []rag.Embedding) *Agent {
+func New(p *provider.OpenAIProvider, r *rag.Rag, e []rag.Embedding) *Agent {
 	return &Agent{
 		p: p,
 		r: r,

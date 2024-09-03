@@ -7,6 +7,7 @@ import (
 	"github.com/yonidavidson/gophercon-israel-2024/prompt"
 	"io"
 	"net/http"
+	"os"
 )
 
 const (
@@ -52,6 +53,15 @@ type embedding struct {
 
 type embeddingResponsePayload struct {
 	Data []embedding `json:"data"`
+}
+
+// NewOpenAIProvider creates a new instance of OpenAIProvider with the API key from the environment variable.
+func NewOpenAIProvider() (*OpenAIProvider, error) {
+	apiKey := os.Getenv("PRIVATE_OPENAI_KEY")
+	if apiKey == "" {
+		return nil, fmt.Errorf("PRIVATE_OPENAI_KEY environment variable is not set")
+	}
+	return &OpenAIProvider{APIKey: apiKey}, nil
 }
 
 // ChatCompletion sends a request to the OpenAI API and returns the response as a byte slice.

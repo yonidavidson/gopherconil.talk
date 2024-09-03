@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/yonidavidson/gophercon-israel-2024/prompt"
 	"github.com/yonidavidson/gophercon-israel-2024/provider"
-	"os"
 )
 
 const promptTemplate = `<system>{{.SystemPrompt}}</system>
@@ -39,12 +38,11 @@ func main() {
 		fmt.Printf("Error parsing messages: %v\n", err)
 		return
 	}
-	apiKey := os.Getenv("PRIVATE_OPENAI_KEY")
-	if apiKey == "" {
-		fmt.Println("Error: PRIVATE_OPENAI_KEY environment variable not set")
+	p, err := provider.NewOpenAIProvider()
+	if err != nil {
+		fmt.Printf("Error creating OpenAI provider: %v\n", err)
 		return
 	}
-	p := provider.OpenAIProvider{APIKey: apiKey}
 	r, err := p.ChatCompletion(m)
 	if err != nil {
 		fmt.Printf("Error getting chat completion: %v\n", err)

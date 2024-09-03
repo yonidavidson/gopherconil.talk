@@ -6,7 +6,6 @@ import (
 	"github.com/yonidavidson/gophercon-israel-2024/agent"
 	"github.com/yonidavidson/gophercon-israel-2024/provider"
 	"github.com/yonidavidson/gophercon-israel-2024/rag"
-	"os"
 )
 
 const ragAgentTemplate = `<system>{{.SystemPrompt}}</system>
@@ -28,12 +27,11 @@ limit the number of questions to 3.
 </user>`
 
 func main() {
-	apiKey := os.Getenv("PRIVATE_OPENAI_KEY")
-	if apiKey == "" {
-		fmt.Println("Error: PRIVATE_OPENAI_KEY environment variable not set")
+	p, err := provider.NewOpenAIProvider()
+	if err != nil {
+		fmt.Printf("Error creating provider: %v\n", err)
 		return
 	}
-	p := provider.OpenAIProvider{APIKey: apiKey}
 	r := rag.New(p)
 	es, err := r.Embed(txt, 1000)
 	if err != nil {
