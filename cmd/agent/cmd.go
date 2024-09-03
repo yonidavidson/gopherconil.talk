@@ -8,14 +8,15 @@ import (
 	"github.com/yonidavidson/gophercon-israel-2024/rag"
 )
 
-const ragAgentTemplate = `<system>{{.SystemPrompt}}</system>
+const (
+	ragAgentTemplate = `<system>{{.SystemPrompt}}</system>
 <user>
 {{if .RAGContext}}Context: 
 {{.RAGContext}}{{end}}
 
 User Query: {{.UserQuery}}</user>`
 
-const structuredDataAgentTemplate = `<system>You are a API that returns a structured json based on content </system>
+	structuredDataAgentTemplate = `<system>You are a API that returns a structured json based on content </system>
 <user>
 Based on this content:
 {{.UserQuery}} 
@@ -25,6 +26,7 @@ each question should as for an insight on the content.
 make the questions rather short no more then 5 words.
 limit the number of questions to 3.
 </user>`
+)
 
 func main() {
 	p, err := provider.NewOpenAIProvider()

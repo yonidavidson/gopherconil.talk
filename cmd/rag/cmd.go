@@ -14,12 +14,14 @@ Context:
 
 User Query: {{.UserQuery}}</user>`
 
-type promptData struct {
-	MaxTokens    float64
-	RAGContext   string
-	UserQuery    string
-	SystemPrompt string
-}
+type (
+	promptData struct {
+		MaxTokens    float64
+		RAGContext   string
+		UserQuery    string
+		SystemPrompt string
+	}
+)
 
 func main() {
 	p, err := provider.NewOpenAIProvider()

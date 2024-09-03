@@ -12,13 +12,15 @@ const promptTemplate = `<system>{{.SystemPrompt}}</system>
 Context: {{limitTokens .RAGContext (multiply .MaxTokens 1)}}
 User Query: {{limitTokens .UserQuery (multiply .MaxTokens 1)}}</user>`
 
-type promptData struct {
-	MaxTokens    float64
-	RAGContext   string
-	UserQuery    string
-	ChatHistory  string
-	SystemPrompt string
-}
+type (
+	promptData struct {
+		MaxTokens    float64
+		RAGContext   string
+		UserQuery    string
+		ChatHistory  string
+		SystemPrompt string
+	}
+)
 
 func main() {
 	maxTokens := 1000
