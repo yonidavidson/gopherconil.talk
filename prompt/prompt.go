@@ -23,22 +23,10 @@ type Message struct {
 
 // ParseMessages transforms the prompt into a slice of messages.
 func ParseMessages(input string, data any) ([]Message, error) {
-	tmpl, err := template.New("talk").Funcs(template.FuncMap{
-		"limitTokens": limitTokens,
-		"multiply": func(a, b float64) float64 {
-			return a * b
-		},
-	}).Parse(input)
+	pt, err := parse(input, data)
 	if err != nil {
-		return nil, fmt.Errorf("error parsing template: %v", err)
+		return nil, err
 	}
-	var result strings.Builder
-	if err := tmpl.Execute(&result, data); err != nil {
-		return nil, fmt.Errorf("error executing template: %v", err)
-	}
-
-	pt := result.String()
-
 	// Validate tags before parsing
 	if err := validate(pt); err != nil {
 		return nil, err
@@ -67,11 +55,11 @@ func ParseMessages(input string, data any) ([]Message, error) {
 }
 
 // validate checks if the input string has matching opening and closing tags for each role.
-func validate(input string) error {
+func validate(input []byte) error {
 	roles := []string{"system", "user", "assistant"}
 	for _, role := range roles {
-		openCount := strings.Count(input, "<"+role+">")
-		closeCount := strings.Count(input, "</"+role+">")
+		openCount := strings.Count(string(input), "<"+role+">")
+		closeCount := strings.Count(string(input), "</"+role+">")
 		if openCount != closeCount {
 			return fmt.Errorf("mismatched tags for role %s: %d opening, %d closing", role, openCount, closeCount)
 		}
@@ -79,7 +67,7 @@ func validate(input string) error {
 	return nil
 }
 
-func parse(promptTemplate string, data any) (string, error) {
+func parse(promptTemplate string, data any) ([]byte, error) {
 	tmpl, err := template.New("talk").Funcs(template.FuncMap{
 		"limitTokens": limitTokens,
 		"multiply": func(a, b float64) float64 {
@@ -87,15 +75,13 @@ func parse(promptTemplate string, data any) (string, error) {
 		},
 	}).Parse(promptTemplate)
 	if err != nil {
-		return "", fmt.Errorf("error parsing template: %v", err)
+		return nil, fmt.Errorf("error parsing template: %v", err)
 	}
 	var result strings.Builder
-	err = tmpl.Execute(&result, data)
-	if err != nil {
-		return "", fmt.Errorf("error executing template: %v", err)
+	if err := tmpl.Execute(&result, data); err != nil {
+		return nil, fmt.Errorf("error executing template: %v", err)
 	}
-
-	return result.String(), nil
+	return []byte(result.String()), nil
 }
 
 func limitTokens(s string, maxTokens float64) string {
