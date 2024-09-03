@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"text/template"
 )
 
 type Role string
@@ -20,10 +21,15 @@ type Message struct {
 	Content string
 }
 
-// ParseMessages parses the input string into a slice of messages.
-func ParseMessages(input string) ([]Message, error) {
+// ParseMessages transforms the prompt into a slice of messages.
+func ParseMessages(input string, data any) ([]Message, error) {
+	pt, err := parse(input, data)
+	if err != nil {
+		return nil, err
+	}
+	input = string(pt)
 	// Validate tags before parsing
-	if err := validate(input); err != nil {
+	if err := validate(pt); err != nil {
 		return nil, err
 	}
 	var messages []Message
@@ -50,14 +56,41 @@ func ParseMessages(input string) ([]Message, error) {
 }
 
 // validate checks if the input string has matching opening and closing tags for each role.
-func validate(input string) error {
+func validate(input []byte) error {
 	roles := []string{"system", "user", "assistant"}
 	for _, role := range roles {
-		openCount := strings.Count(input, "<"+role+">")
-		closeCount := strings.Count(input, "</"+role+">")
+		openCount := strings.Count(string(input), "<"+role+">")
+		closeCount := strings.Count(string(input), "</"+role+">")
 		if openCount != closeCount {
 			return fmt.Errorf("mismatched tags for role %s: %d opening, %d closing", role, openCount, closeCount)
 		}
 	}
 	return nil
+}
+
+func parse(promptTemplate string, data any) ([]byte, error) {
+	tmpl, err := template.New("talk").Funcs(template.FuncMap{
+		"limitTokens": limitTokens,
+		"multiply": func(a, b float64) float64 {
+			return a * b
+		},
+	}).Parse(promptTemplate)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing template: %v", err)
+	}
+	var result strings.Builder
+	if err := tmpl.Execute(&result, data); err != nil {
+		return nil, fmt.Errorf("error executing template: %v", err)
+	}
+	return []byte(result.String()), nil
+}
+
+func limitTokens(s string, maxTokens float64) string {
+	const avgTokenLength = 4 // Average token length heuristic
+	maxChars := int(maxTokens * avgTokenLength)
+
+	if len(s) <= maxChars {
+		return s
+	}
+	return s[:maxChars]
 }

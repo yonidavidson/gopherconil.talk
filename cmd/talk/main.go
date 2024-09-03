@@ -15,11 +15,15 @@ func main() {
 		return
 	}
 	p := provider.OpenAIProvider{APIKey: apiKey}
-	messages, err := prompt.ParseMessages(`<system>You are a helpful assistant that provides concise and accurate information.</system>
-<user>Translate the following English text to French: 'Hello, how are you'</user>`)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
+	messages := []prompt.Message{
+		{
+			Role:    prompt.RoleSystem,
+			Content: "You are a helpful assistant that provides concise and accurate information.",
+		},
+		{
+			Role:    prompt.RoleUser,
+			Content: "Translate the following English text to French: 'Hello, how are you",
+		},
 	}
 	r, err := p.ChatCompletion(messages)
 	if err != nil {

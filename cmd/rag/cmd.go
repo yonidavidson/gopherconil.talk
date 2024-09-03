@@ -5,9 +5,7 @@ import (
 	"github.com/yonidavidson/gophercon-israel-2024/prompt"
 	"github.com/yonidavidson/gophercon-israel-2024/provider"
 	"github.com/yonidavidson/gophercon-israel-2024/rag"
-	"html/template"
 	"os"
-	"strings"
 )
 
 const promptTemplate = `<system>{{.SystemPrompt}}</system>
@@ -17,33 +15,11 @@ Context:
 
 User Query: {{.UserQuery}}</user>`
 
-type PromptData struct {
+type promptData struct {
 	MaxTokens    float64
 	RAGContext   string
 	UserQuery    string
 	SystemPrompt string
-}
-
-func generatePrompt(maxTokens int, ragContext, userQuery, systemPrompt string) (string, error) {
-	tmpl, err := template.New("rag").Parse(promptTemplate)
-	if err != nil {
-		return "", fmt.Errorf("error parsing template: %v", err)
-	}
-
-	data := PromptData{
-		MaxTokens:    float64(maxTokens),
-		RAGContext:   ragContext,
-		UserQuery:    userQuery,
-		SystemPrompt: systemPrompt,
-	}
-
-	var result strings.Builder
-	err = tmpl.Execute(&result, data)
-	if err != nil {
-		return "", fmt.Errorf("error executing template: %v", err)
-	}
-
-	return result.String(), nil
 }
 
 func main() {
@@ -66,16 +42,12 @@ func main() {
 		fmt.Printf("Error searching text: %v\n", err)
 		return
 	}
-
-	systemPrompt := "Answer the following question based only on the provided context:"
-
-	prmt, err := generatePrompt(10000, string(ragContext), userQuery, systemPrompt)
-	if err != nil {
-		fmt.Printf("Error generating talk: %v\n", err)
-		return
-	}
-	fmt.Println(prmt)
-	m, err := prompt.ParseMessages(prmt)
+	m, err := prompt.ParseMessages(promptTemplate, promptData{
+		MaxTokens:    1000,
+		RAGContext:   string(ragContext),
+		UserQuery:    userQuery,
+		SystemPrompt: "Answer the following question based only on the provided context:",
+	})
 	if err != nil {
 		fmt.Printf("Error parsing messages: %v\n", err)
 		return
