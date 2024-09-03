@@ -7,19 +7,21 @@ import (
 	"text/template"
 )
 
-type Role string
+type (
+	// Message represents a message with a role and content.
+	Message struct {
+		Role    Role
+		Content string
+	}
+	// Role represents the role of a message.
+	Role string
+)
 
 const (
 	RoleSystem    Role = "system"
 	RoleUser      Role = "user"
 	RoleAssistant Role = "assistant"
 )
-
-// Message represents a message with a role and content.
-type Message struct {
-	Role    Role
-	Content string
-}
 
 // ParseMessages transforms the prompt into a slice of messages.
 func ParseMessages(input string, data any) ([]Message, error) {

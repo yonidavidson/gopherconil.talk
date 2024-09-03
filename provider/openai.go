@@ -7,6 +7,54 @@ import (
 	"github.com/yonidavidson/gophercon-israel-2024/prompt"
 	"io"
 	"net/http"
+	"os"
+)
+
+type (
+	// OpenAIProvider is a provider that uses the OpenAI API
+	OpenAIProvider struct {
+		APIKey string
+	}
+
+	// requestPayload is the JSON payload we send to the OpenAI API
+	requestPayload struct {
+		Model       string    `json:"model"`
+		Messages    []message `json:"messages"`
+		MaxTokens   int       `json:"max_tokens"`
+		Temperature float64   `json:"temperature"`
+		TopP        float64   `json:"top_p"`
+		N           int       `json:"n"`
+		Stop        *string   `json:"stop"`
+	}
+
+	// choice struct represents a single choice from the OpenAI API response
+	choice struct {
+		Message message `json:"message"`
+	}
+
+	// responsePayload is the JSON payload we receive from the OpenAI API
+	responsePayload struct {
+		Choices []choice `json:"choices"`
+	}
+
+	// embeddingRequestPayload is the JSON payload we send to the OpenAI API for embedding
+	embeddingRequestPayload struct {
+		Model string   `json:"model"`
+		Input []string `json:"input"`
+	}
+
+	embedding struct {
+		Embedding []float64 `json:"embedding"`
+	}
+
+	embeddingResponsePayload struct {
+		Data []embedding `json:"data"`
+	}
+
+	message struct {
+		Role    string `json:"role"`
+		Content string `json:"content"`
+	}
 )
 
 const (
@@ -14,44 +62,13 @@ const (
 	embeddingEndpoint = "https://api.openai.com/v1/embeddings"
 )
 
-type OpenAIProvider struct {
-	APIKey string
-}
-
-type message struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
-}
-
-type requestPayload struct {
-	Model       string    `json:"model"`
-	Messages    []message `json:"messages"`
-	MaxTokens   int       `json:"max_tokens"`
-	Temperature float64   `json:"temperature"`
-	TopP        float64   `json:"top_p"`
-	N           int       `json:"n"`
-	Stop        *string   `json:"stop"`
-}
-
-type choice struct {
-	Message message `json:"message"`
-}
-
-type responsePayload struct {
-	Choices []choice `json:"choices"`
-}
-
-type embeddingRequestPayload struct {
-	Model string   `json:"model"`
-	Input []string `json:"input"`
-}
-
-type embedding struct {
-	Embedding []float64 `json:"embedding"`
-}
-
-type embeddingResponsePayload struct {
-	Data []embedding `json:"data"`
+// NewOpenAIProvider creates a new instance of OpenAIProvider with the API key from the environment variable.
+func NewOpenAIProvider() (*OpenAIProvider, error) {
+	apiKey := os.Getenv("PRIVATE_OPENAI_KEY")
+	if apiKey == "" {
+		return nil, fmt.Errorf("PRIVATE_OPENAI_KEY environment variable is not set")
+	}
+	return &OpenAIProvider{APIKey: apiKey}, nil
 }
 
 // ChatCompletion sends a request to the OpenAI API and returns the response as a byte slice.

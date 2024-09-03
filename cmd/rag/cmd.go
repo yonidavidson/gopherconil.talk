@@ -5,7 +5,6 @@ import (
 	"github.com/yonidavidson/gophercon-israel-2024/prompt"
 	"github.com/yonidavidson/gophercon-israel-2024/provider"
 	"github.com/yonidavidson/gophercon-israel-2024/rag"
-	"os"
 )
 
 const promptTemplate = `<system>{{.SystemPrompt}}</system>
@@ -15,20 +14,21 @@ Context:
 
 User Query: {{.UserQuery}}</user>`
 
-type promptData struct {
-	MaxTokens    float64
-	RAGContext   string
-	UserQuery    string
-	SystemPrompt string
-}
+type (
+	promptData struct {
+		MaxTokens    float64
+		RAGContext   string
+		UserQuery    string
+		SystemPrompt string
+	}
+)
 
 func main() {
-	apiKey := os.Getenv("PRIVATE_OPENAI_KEY")
-	if apiKey == "" {
-		fmt.Println("Error: PRIVATE_OPENAI_KEY environment variable not set")
+	p, err := provider.NewOpenAIProvider()
+	if err != nil {
+		fmt.Printf("Error creating provider: %v\n", err)
 		return
 	}
-	p := provider.OpenAIProvider{APIKey: apiKey}
 	r := rag.New(p)
 	es, err := r.Embed(txt, 1000)
 	if err != nil {
