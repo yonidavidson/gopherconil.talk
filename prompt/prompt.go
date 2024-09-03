@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"text/template"
 )
 
 type Role string
@@ -20,10 +21,26 @@ type Message struct {
 	Content string
 }
 
-// ParseMessages parses the input string into a slice of messages.
-func ParseMessages(input string) ([]Message, error) {
+// ParseMessages transforms the prompt into a slice of messages.
+func ParseMessages(input string, data any) ([]Message, error) {
+	tmpl, err := template.New("talk").Funcs(template.FuncMap{
+		"limitTokens": limitTokens,
+		"multiply": func(a, b float64) float64 {
+			return a * b
+		},
+	}).Parse(input)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing template: %v", err)
+	}
+	var result strings.Builder
+	if err := tmpl.Execute(&result, data); err != nil {
+		return nil, fmt.Errorf("error executing template: %v", err)
+	}
+
+	pt := result.String()
+
 	// Validate tags before parsing
-	if err := validate(input); err != nil {
+	if err := validate(pt); err != nil {
 		return nil, err
 	}
 	var messages []Message
@@ -60,4 +77,33 @@ func validate(input string) error {
 		}
 	}
 	return nil
+}
+
+func parse(promptTemplate string, data any) (string, error) {
+	tmpl, err := template.New("talk").Funcs(template.FuncMap{
+		"limitTokens": limitTokens,
+		"multiply": func(a, b float64) float64 {
+			return a * b
+		},
+	}).Parse(promptTemplate)
+	if err != nil {
+		return "", fmt.Errorf("error parsing template: %v", err)
+	}
+	var result strings.Builder
+	err = tmpl.Execute(&result, data)
+	if err != nil {
+		return "", fmt.Errorf("error executing template: %v", err)
+	}
+
+	return result.String(), nil
+}
+
+func limitTokens(s string, maxTokens float64) string {
+	const avgTokenLength = 4 // Average token length heuristic
+	maxChars := int(maxTokens * avgTokenLength)
+
+	if len(s) <= maxChars {
+		return s
+	}
+	return s[:maxChars]
 }
