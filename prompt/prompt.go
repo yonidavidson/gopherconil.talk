@@ -94,5 +94,11 @@ func limitTokens(s string, maxTokens float64) string {
 	if len(s) <= maxChars {
 		return s
 	}
-	return s[:maxChars]
+
+	limited := s[:maxChars]
+	lastStop := strings.LastIndexAny(limited, ".?,")
+	if lastStop != -1 {
+		return limited[:lastStop+1]
+	}
+	return limited
 }

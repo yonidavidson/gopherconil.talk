@@ -7,10 +7,10 @@ import (
 )
 
 const promptTemplate = `<system>{{.SystemPrompt}}</system>
-{{limitTokens .ChatHistory (multiply .MaxTokens 1)}}
+{{.ChatHistory}}
 <user>
-Context: {{limitTokens .RAGContext (multiply .MaxTokens 1)}}
-User Query: {{limitTokens .UserQuery (multiply .MaxTokens 1)}}</user>`
+Context: {{limitTokens .RAGContext (multiply .MaxTokens 0.2)}}
+User Query: {{.UserQuery}}</user>`
 
 type (
 	promptData struct {
@@ -23,7 +23,7 @@ type (
 )
 
 func main() {
-	maxTokens := 1000
+	maxTokens := 200
 	ragContext := "Paris, the capital of France, is a major European city and a global center for art, fashion, gastronomy, and culture. Its 19th-century cityscape is crisscrossed by wide boulevards and the River Seine. Beyond such landmarks as the Eiffel Tower and the 12th-century, Gothic Notre-Dame cathedral, the city is known for its cafe culture and designer boutiques along the Rue du Faubourg Saint-Honoré."
 	userQuery := "Can you tell me about the history and main attractions of Paris? Also, what`s the best time to visit and are there any local customs I should be aware of?"
 	chatHistory := "<user>I`m planning a trip to Europe.</user>\n<assistant>That`s exciting! Europe has many wonderful destinations. Do you have any specific countries or cities in mind?</assistant>\n<user>I am thinking about visiting France.</user>\n<assistant>France is a great choice! It offers a rich history, beautiful landscapes, and world-renowned cuisine. Are you interested in visiting Paris or exploring other regions as well?</assistant>"
