@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reveal.js Presentation with Markdown and Step-by-Step Code Highlights</title>
+
+  <!-- Core Reveal.js styles -->
+  <link rel="stylesheet" href="node_modules/reveal.js/dist/reveal.css">
+  <link rel="stylesheet" href="node_modules/reveal.js/dist/theme/black.css">
+
+  <!-- Highlight.js styles for syntax highlighting -->
+  <link rel="stylesheet" href="node_modules/highlight.js/styles/default.css">
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section>
+        <h2>Step-by-Step Code Highlights (Go Example)</h2>
+        <pre><code data-trim data-noescape class="language-go">
+          <span class="fragment" data-fragment-index="1">package main</span>
+          <span class="fragment" data-fragment-index="2">import "fmt"</span>
+          <span class="fragment" data-fragment-index="3">func factorial(n int) int {</span>
+          <span class="fragment" data-fragment-index="4">  if n == 0 {</span>
+          <span class="fragment" data-fragment-index="5">    return 1</span>
+          <span class="fragment" data-fragment-index="6">  }</span>
+          <span class="fragment" data-fragment-index="7">  return n * factorial(n-1)</span>
+          <span class="fragment" data-fragment-index="8">}</span>
+          <span class="fragment" data-fragment-index="9">func main() {</span>
+          <span class="fragment" data-fragment-index="10">  fmt.Println(factorial(5))</span>
+          <span class="fragment" data-fragment-index="11">}</span>
+        </code></pre>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Include Reveal.js core library -->
+  <script src="node_modules/reveal.js/dist/reveal.js"></script>
+
+  <!-- Include Highlight.js library -->
+  <script src="node_modules/highlight.js/lib/highlight.js"></script>
+
+  <!-- Include the Highlight.js plugin for Reveal.js -->
+  <script src="node_modules/reveal.js/plugin/highlight/highlight.js"></script>
+
+  <!-- Initialize Reveal.js and Highlight.js -->
+  <script>
+    // Initialize Reveal.js
+    Reveal.initialize({
+      plugins: [ RevealHighlight ],
+    });
+
+    // Initialize syntax highlighting
+    hljs.highlightAll();
+  </script>
+</body>
+</html>
