@@ -7,7 +7,7 @@
 
   <!-- Core Reveal.js styles -->
   <link rel="stylesheet" href="node_modules/reveal.js/dist/reveal.css">
-  <link rel="stylesheet" href="node_modules/reveal.js/dist/theme/black.css">
+  <link rel="stylesheet" href="node_modules/reveal.js/dist/theme/white.css">
 
   <!-- Highlight.js styles for syntax highlighting -->
   <link rel="stylesheet" href="node_modules/highlight.js/styles/default.css">
@@ -15,7 +15,35 @@
 <body>
   <div class="reveal">
     <div class="slides">
-
+      <section data-markdown>
+        <textarea data-template>
+          # Building AI Agents with Go
+          ## A Practical Guide
+          <footer>by Yoni Davidson</footer>
+        </textarea>
+      </section>
+      <section data-markdown>
+        <textarea data-template>
+          ## Markdown Slide
+      
+          This is a slide written in Markdown.
+      
+          - Bullet point 1
+          - Bullet point 2
+          - Bullet point 3
+      
+          ```go
+          // Go code example
+          package main
+      
+          import "fmt"
+      
+          func main() {
+            fmt.Println("Hello, Markdown!")
+          }
+          ```
+        </textarea>
+      </section>
       <section>
         <h2>Step-by-Step Code Highlights (Go Example)</h2>
         <pre><code data-trim data-noescape class="language-go">
@@ -45,11 +73,14 @@
   <!-- Include the Highlight.js plugin for Reveal.js -->
   <script src="node_modules/reveal.js/plugin/highlight/highlight.js"></script>
 
+  <!-- Include the Markdown plugin for Reveal.js -->
+  <script src="node_modules/reveal.js/plugin/markdown/markdown.js"></script>
+
   <!-- Initialize Reveal.js and Highlight.js -->
   <script>
     // Initialize Reveal.js
     Reveal.initialize({
-      plugins: [ RevealHighlight ],
+      plugins: [RevealMarkdown, RevealHighlight ],
     });
 
     // Initialize syntax highlighting
