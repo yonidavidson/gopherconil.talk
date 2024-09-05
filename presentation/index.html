@@ -1,29 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reveal.js Presentation with Markdown and Step-by-Step Code Highlights</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal.js Presentation with Markdown and Step-by-Step Code Highlights</title>
 
-  <!-- Core Reveal.js styles -->
-  <link rel="stylesheet" href="node_modules/reveal.js/dist/reveal.css">
-  <link rel="stylesheet" href="node_modules/reveal.js/dist/theme/white.css">
+    <!-- Core Reveal.js styles -->
+    <link rel="stylesheet" href="node_modules/reveal.js/dist/reveal.css">
+    <link rel="stylesheet" href="node_modules/reveal.js/dist/theme/white.css">
 
-  <!-- Highlight.js styles for syntax highlighting -->
-  <link rel="stylesheet" href="node_modules/highlight.js/styles/default.css">
+    <!-- Highlight.js styles for syntax highlighting -->
+    <link rel="stylesheet" href="node_modules/highlight.js/styles/default.css">
 </head>
 <body>
-  <div class="reveal">
+<div class="reveal">
     <div class="slides">
-      <section data-markdown>
+        <section data-markdown>
         <textarea data-template>
           # Building AI Agents with Go
           ## A Practical Guide
           <img src="https://golang.org/doc/gopher/frontpage.png" alt="Gopher" width="100">
           <footer>by Yoni Davidson</footer>
         </textarea>
-      </section>
-      <section data-markdown>
+        </section>
+        <section data-markdown>
         <textarea data-template>
           ## About me!
           - Married + 1 Daughter and 4 dogs
@@ -32,20 +32,29 @@
           - Founding Engineer At Ariga
           - Data Architect and SW engineer at Bond              
         </textarea>
-      </section>      
-      <section data-markdown>
+        </section>
+        <section data-markdown>
         <textarea data-template>
           ## Agenda
           - State of AI (why wasn’t this talk done last year?)
-          - “Talking” with a LLMs
+          - How do we 'talk' with LLMs
           - Prompt engineering
+          - RAG
           - One shot agents
           - Workflow agents
-          - RAG
-          - Observability
         </textarea>
-      </section>  
-      <section data-markdown>
+        </section>
+        <section data-markdown>
+        <textarea data-template>
+          ## State of AI
+          - Pricing
+          - Availability
+          - Privacy
+          ![png tester2](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHoAAABkCAYAAABJhSQPAAAACXBIWXMAAAsTAAALEwEAmpwYAAADf0lEQVR42u3dW2vTYBzH8eeUPDm0adN2adeddNMpo2ObXoypsDvFd+WbEfRSUUHvxIFOEXG7UEFR5xybulO3tU3XpF4JIiJ43Pw/v+8LKP3nQ54nIaTlC2fOXGKIfAKHANAI0AjQCNAI0AjQCNAI0AjQgEaARoBGgEaARoBGgEaARoBGgAY0AjQCNAI0AjQCNAI0AjQCNKARoBGgEaARoNE/T+EQHL4SwXhsCbnrKWvHU3bdV3rHV3rPlXrPkbqppY5tYXUkVx3JZSo4Z4wxkXa7KukmKul2dDvdd+Mk9ltJ7DeTGNAHXFML+Slnu6slnVkpOfm1og5bttC/8lmp4LwtuGhbzGo40t1kFs7ogyjljNV9ZS9V3OB11Su97XUrWLqJFFtcLEdu9vmRTPSq3+vDHk2oli3k66qXWzie7V8r6AIuxogty+/KbvbxydzActmJcNVNrIYW6uloED0ay4/i9opg64GlH4yHgwe57wL6L/YhtN17k4Xh95HT8z99b0D/xBl891Rx5DDuv4D+AzW1kHMThaFnRzOD//McgP5BT0aD6N5UYYzCLID+Th/ztnPzXFSr+ypDZSZAf3MvPF/LVw/7rRKgf6NtX9nXZsvjW1krS3E+QDPGXgz64e2ZngnKMxoPfXeqMPh0NBimPqex0G3FxfXZythKSZdMmNdI6B1XWlcu9J1uauGYMrNx0OuBpS9f7JsxbW6joD+EtnvlfHXaxFVMABnQpJZrk5GNgN51pDJxTzYKuiM5v3q+epoh2tA3zkUn91zpgpkw9P3xfHWp4pZBTBj6bcXNUnwCBeivatlCXpstY1+mDn1nuucYWIlDv+z3cm+qbi9YCUO3FRe3zkZTICUOPV8L+8BJHLruKevJiWAEnMSh5ybDI6AkDr2VUfbLAR/LNnXo+Vo4AEbi0E0t5IshH9DUoRdHggiEBkA/rOWPg5A49GpBeynHD+KRh148lsUjSOrQKWfs2dHMEPiIQ28ElgM6A6Df9Ho50BkA/arfw20VdeiUM7ZW1EXQEYduaIl3uk2A3sjhQswI6PWc7YHNAOjNwAK0CdBbGUAbAb3r4RUbI6BbWtpgMwC6rbgFNgOgv/z1DyIOLdJuF2wGQNud7j7YDIB24qQNNgOgM42kCTYDoPO7+w2wGQAd1gFtBHRxuw1oE6AL2/stsBkA7cVJB2w/32c7r8DNq/e3jAAAAABJRU5ErkJggg==)
+
+        </textarea>
+        </section>
+        <section data-markdown>
         <textarea data-template>
           ## Markdown Slide
       
@@ -66,31 +75,31 @@
           }
           ```
         </textarea>
-      </section>
+        </section>
     </div>
-  </div>
+</div>
 
-  <!-- Include Reveal.js core library -->
-  <script src="node_modules/reveal.js/dist/reveal.js"></script>
+<!-- Include Reveal.js core library -->
+<script src="node_modules/reveal.js/dist/reveal.js"></script>
 
-  <!-- Include Highlight.js library -->
-  <script src="node_modules/highlight.js/lib/highlight.js"></script>
+<!-- Include Highlight.js library -->
+<script src="node_modules/highlight.js/lib/highlight.js"></script>
 
-  <!-- Include the Highlight.js plugin for Reveal.js -->
-  <script src="node_modules/reveal.js/plugin/highlight/highlight.js"></script>
+<!-- Include the Highlight.js plugin for Reveal.js -->
+<script src="node_modules/reveal.js/plugin/highlight/highlight.js"></script>
 
-  <!-- Include the Markdown plugin for Reveal.js -->
-  <script src="node_modules/reveal.js/plugin/markdown/markdown.js"></script>
+<!-- Include the Markdown plugin for Reveal.js -->
+<script src="node_modules/reveal.js/plugin/markdown/markdown.js"></script>
 
-  <!-- Initialize Reveal.js and Highlight.js -->
-  <script>
+<!-- Initialize Reveal.js and Highlight.js -->
+<script>
     // Initialize Reveal.js
     Reveal.initialize({
-      plugins: [RevealMarkdown, RevealHighlight ],
+        plugins: [RevealMarkdown, RevealHighlight],
     });
 
     // Initialize syntax highlighting
     hljs.highlightAll();
-  </script>
+</script>
 </body>
 </html>
