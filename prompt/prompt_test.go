@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/yonidavidson/gophercon-israel-2024/prompt"
+	"github.com/yonidavidson/gopherconil.talk/prompt"
 )
 
 func TestParseMessages(t *testing.T) {

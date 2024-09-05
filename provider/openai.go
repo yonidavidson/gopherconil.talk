@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/yonidavidson/gophercon-israel-2024/prompt"
+	"github.com/yonidavidson/gopherconil.talk/prompt"
 	"io"
 	"net/http"
 	"os"

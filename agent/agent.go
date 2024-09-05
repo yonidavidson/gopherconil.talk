@@ -2,9 +2,9 @@ package agent
 
 import (
 	"fmt"
-	"github.com/yonidavidson/gophercon-israel-2024/prompt"
-	"github.com/yonidavidson/gophercon-israel-2024/provider"
-	"github.com/yonidavidson/gophercon-israel-2024/rag"
+	"github.com/yonidavidson/gopherconil.talk/prompt"
+	"github.com/yonidavidson/gopherconil.talk/provider"
+	"github.com/yonidavidson/gopherconil.talk/rag"
 )
 
 // Agent represents a conversational agent that uses a language model and retrieval-augmented generation (RAG) to answer questions.

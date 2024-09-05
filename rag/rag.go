@@ -1,7 +1,7 @@
 package rag
 
 import (
-	"github.com/yonidavidson/gophercon-israel-2024/provider"
+	"github.com/yonidavidson/gopherconil.talk/provider"
 	"math"
 	"sort"
 )

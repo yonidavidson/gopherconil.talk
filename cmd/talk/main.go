@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/yonidavidson/gophercon-israel-2024/prompt"
-	"github.com/yonidavidson/gophercon-israel-2024/provider"
+	"github.com/yonidavidson/gopherconil.talk/prompt"
+	"github.com/yonidavidson/gopherconil.talk/provider"
 )
 
 func main() {
