@@ -103,9 +103,48 @@
         </section>
         <section data-markdown>
           <textarea data-template>
-            ## How do we 'talk' with LLMs
+            ## How do we 'talk' with LLMs - OpenAI client demo
             
             * OpenAI client - Demo
+```go [9-14|15-24|25-31]
+package main
+
+import (
+	"fmt"
+	"github.com/yonidavidson/gopherconil.talk/prompt"
+	"github.com/yonidavidson/gopherconil.talk/provider"
+)
+
+func main() {
+	p, err := provider.NewOpenAIProvider()
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	messages := []prompt.Message{
+		{
+			Role:    prompt.RoleSystem,
+			Content: "You are a helpful assistant that provides concise and accurate information.",
+		},
+		{
+			Role:    prompt.RoleUser,
+			Content: "Translate the following English text to French: 'Hello, how are you",
+		},
+	}
+	r, err := p.ChatCompletion(messages)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	fmt.Println(string(r))
+}
+```
+            
+          </textarea>
+        </section>    
+        <section data-markdown>
+          <textarea data-template>
+            ## How do we 'talk' with LLMs - OpenAI client demo           
             ```shell
             go run ./cmd/talk
             ```
@@ -115,7 +154,7 @@
         <section data-markdown>
         <textarea data-template>
           ## How do we 'talk' with LLMs - OpenAI Provider                  
-          ```go [1-8|9-22|23-67|]
+```go [1-8|9-22|23-67|]
           // ChatCompletion sends a request to the OpenAI API and returns the response as a byte slice.
 func (p OpenAIProvider) ChatCompletion(m []prompt.Message) ([]byte, error) {
 	// convert from []prompt.Message to []message
@@ -181,8 +220,7 @@ func (p OpenAIProvider) ChatCompletion(m []prompt.Message) ([]byte, error) {
 	}
 
 	return []byte(responsePayload.Choices[0].Message.Content), nil
-}
-          ```
+}```
         </textarea>
         </section>
          <!--<section>
