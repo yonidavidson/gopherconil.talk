@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "http-server"
+    "start": "http-server",
+    "start-speaker": "reveal-notes-server"
   },
   "author": "",
   "license": "ISC",
@@ -12,6 +13,7 @@
     "highlight.js": "^11.10.0",
     "install": "^0.13.0",
     "npm": "^10.8.3",
+    "reveal-notes-server": "^0.2.1",
     "reveal.js": "^5.1.0"
   },
   "devDependencies": {

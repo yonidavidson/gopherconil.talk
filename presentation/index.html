@@ -30,7 +30,11 @@
           <hr/>
           - **Squad Manager @Tabnine** (Current)
           - Founding Engineer At Ariga
-          - Data Architect and SW engineer at Bond              
+          - Data Architect and SW engineer at Bond
+          
+          <aside class="notes">
+            Shhh, these are your private notes 📝
+          </aside>
         </textarea>
         </section>
         <section data-markdown>
@@ -142,11 +146,15 @@
 <!-- Include the Markdown plugin for Reveal.js -->
 <script src="node_modules/reveal.js/plugin/markdown/markdown.js"></script>
 
+<script src="node_modules/reveal.js/plugin/notes/notes.js"></script>
+<script src="socket.io/socket.io.js"></script>
+<script src="node_modules/reveal-notes-server/client.js"></script>
+
 <!-- Initialize Reveal.js and Highlight.js -->
 <script>
     // Initialize Reveal.js
     Reveal.initialize({
-        plugins: [RevealMarkdown, RevealHighlight],
+        plugins: [RevealMarkdown, RevealHighlight, RevealNotes],
     });
 
     // Initialize syntax highlighting
