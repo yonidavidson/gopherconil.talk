@@ -24,15 +24,15 @@ const (
 )
 
 // ParseMessages transforms the prompt into a slice of messages.
-func ParseMessages(input string, data any) ([]Message, error) {
+func ParseMessages(input string, data any) ([]Message, []byte, error) {
 	pt, err := parse(input, data)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	input = string(pt)
 	// Validate tags before parsing
 	if err := validate(pt); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	var messages []Message
 
@@ -54,7 +54,7 @@ func ParseMessages(input string, data any) ([]Message, error) {
 		messages = append(messages, message)
 	}
 
-	return messages, nil
+	return messages, pt, nil
 }
 
 // validate checks if the input string has matching opening and closing tags for each role.

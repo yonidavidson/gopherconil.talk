@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/yonidavidson/gophercon-israel-2024/prompt"
-	"github.com/yonidavidson/gophercon-israel-2024/provider"
-	"github.com/yonidavidson/gophercon-israel-2024/rag"
+
+	"github.com/yonidavidson/gopherconil.talk/prompt"
+	"github.com/yonidavidson/gopherconil.talk/provider"
+	"github.com/yonidavidson/gopherconil.talk/rag"
 )
 
 const promptTemplate = `<system>{{.SystemPrompt}}</system>
@@ -42,7 +43,8 @@ func main() {
 		fmt.Printf("Error searching text: %v\n", err)
 		return
 	}
-	m, err := prompt.ParseMessages(promptTemplate, promptData{
+	fmt.Println("RAG CONTEXT:\n " + string(ragContext))
+	m, _, err := prompt.ParseMessages(promptTemplate, promptData{
 		MaxTokens:    1000,
 		RAGContext:   string(ragContext),
 		UserQuery:    userQuery,

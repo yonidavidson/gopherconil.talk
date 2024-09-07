@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/yonidavidson/gophercon-israel-2024/agent"
-	"github.com/yonidavidson/gophercon-israel-2024/provider"
-	"github.com/yonidavidson/gophercon-israel-2024/rag"
+
+	"github.com/yonidavidson/gopherconil.talk/agent"
+	"github.com/yonidavidson/gopherconil.talk/provider"
+	"github.com/yonidavidson/gopherconil.talk/rag"
 )
 
 const (

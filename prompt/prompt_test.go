@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/yonidavidson/gophercon-israel-2024/prompt"
+	"github.com/yonidavidson/gopherconil.talk/prompt"
 )
 
 func TestParseMessages(t *testing.T) {
@@ -44,7 +44,7 @@ func TestParseMessages(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := prompt.ParseMessages(tt.input, nil)
+			result, _, err := prompt.ParseMessages(tt.input, nil)
 			if err != nil {
 				t.Errorf("ParseMessages() error = %v", err)
 				return
@@ -62,7 +62,7 @@ func TestParseMessagesError(t *testing.T) {
                     <user>User message without closing tag
                     <assistant>Assistant message</assistant>`
 
-	_, err := prompt.ParseMessages(input, nil)
+	_, _, err := prompt.ParseMessages(input, nil)
 	if err == nil {
 		t.Error("Expected an error, but got nil")
 	}

@@ -1,2 +1,3 @@
-module github.com/yonidavidson/gophercon-israel-2024
+module github.com/yonidavidson/gopherconil.talk
+
 go 1.21.0

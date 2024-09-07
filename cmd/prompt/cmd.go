@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/yonidavidson/gophercon-israel-2024/prompt"
-	"github.com/yonidavidson/gophercon-israel-2024/provider"
+
+	"github.com/yonidavidson/gopherconil.talk/prompt"
+	"github.com/yonidavidson/gopherconil.talk/provider"
 )
 
 const promptTemplate = `<system>{{.SystemPrompt}}</system>
@@ -35,7 +36,7 @@ func main() {
 		ChatHistory:  chatHistory,
 		SystemPrompt: systemPrompt,
 	}
-	m, err := prompt.ParseMessages(promptTemplate, data)
+	m, _, err := prompt.ParseMessages(promptTemplate, data)
 	if err != nil {
 		fmt.Printf("Error parsing messages: %v\n", err)
 		return

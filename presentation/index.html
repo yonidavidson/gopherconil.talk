@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal.js Presentation with Markdown and Step-by-Step Code Highlights</title>
+
+    <!-- Core Reveal.js styles -->
+    <link rel="stylesheet" href="node_modules/reveal.js/dist/reveal.css">
+    <link rel="stylesheet" href="node_modules/reveal.js/dist/theme/white.css">
+
+    <!-- Highlight.js styles for syntax highlighting -->
+    <link rel="stylesheet" href="node_modules/highlight.js/styles/default.css">
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section data-markdown>
+<textarea data-template>
+# Building AI Agents with <span style="color: blue;">Go</span>
+
+###### A Practical Guide
+
+###### GopherCon Israel 2024
+
+<img src="https://golang.org/doc/gopher/frontpage.png" alt="Gopher" width="100">
+<footer>by Yoni Davidson</footer>
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## About me
+- Married + 1 Daughter and 4 dogs
+<hr/>
+
+- **Squad Manager @Tabnine** (Current)
+
+- Founding Engineer At Ariga
+
+- Data Architect / Tech lead at Bond
+
+.
+.
+.
+Note:
+* I have large experience in dev tools, AI applications and data engineering.
+* Living in Pardes Chana like many known gophers such as Miki (not far from me).    
+* I manage the remote squad at Tabnine - which is a cool twist for working hybried 
+* At Tabnine we build AI applications for example
+Chat, Agents, RAG (client and server)
+* Our main languages are typescript , Python and Rust - but I dream at Go at night (and sometimes during the day)
+* This talk is about building AI agents with Go, which notes for building AI applications if we were gophers.
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## Agenda
+- State of AI (why wasn’t this talk done last year?)
+- How do we 'Talk' with LLMs
+- Prompt
+- RAG
+- Agents
+
+Note: 
+1. Agents are getting mainstream
+2. For example, Replit just annonced
+3. This talk shows code, the idea is to see that there is no magic in anything, after the talk just fork and use this infra to build your own agents.
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## State of AI
+- Pricing
+- Availability
+- Privacy      
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## State of AI - Pricing 
+######  <div style="text-align: left;"> 1M Tokens roughly the equivalent of 2500 pages in a standard book</div>
+| Model            | Price per 1M input tokens | Price per 1M output tokens |
+|------------------|---------------------------|----------------------------|            
+| GPT-4o mini      | $0.15                     | $0.6                       |
+| Gemini 1.5 Flash | $0.075                    | $0.30                      |            
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## State of AI - Availability
+| Cloud Provider | Claude 3.5 | GPT-4o-mini | LLaMA 3.1 | Gemini 1.5 Flash  | Mistral  |
+|----------------|------------|-------------|-----------|-------------------|----------|
+| Azure          |            |   ✓         |     ✓     |                   |    ✓     |
+| AWS            |     ✓      |             |     ✓     |                   |    ✓     |
+| Google Cloud   |    ✓       |             |     ✓     |  ✓                |    ✓     |
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## State of AI - Privacy
+
+* Cloud providers provide both SDK based protection accessing your LLM but also ensure that they don't store or train on your data.
+
+* Most AI providers today have 'Enterprise' tier that ensure data protection and rate limits.
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## How do we 'talk' with LLMs
+
+* The world is split into Providers and AI Models
+
+* For example - Azure and OpenAI are providers for the GPT-4o-mini model
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## How do we 'talk' with LLMs
+```go [1-8|9-22|23-67]
+// ChatCompletion sends a request to the OpenAI API and returns the response as a byte slice.
+func (p OpenAIProvider) ChatCompletion(m []prompt.Message) ([]byte, error) {
+	// convert from []prompt.Message to []message
+	messages := make([]message, len(m))
+	for i, m := range m {
+		messages[i] = message{
+			Role:    string(m.Role),
+			Content: m.Content,
+		}
+	}
+	// Define the payload with a system talk
+	payload := requestPayload{
+		Model:       "gpt-4o-mini-2024-07-18",
+		Messages:    messages,
+		MaxTokens:   1000,
+		Temperature: 0.5,
+		TopP:        1.0,
+		N:           1,
+		Stop:        nil,
+	}
+
+	// Marshal the payload into JSON
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create the HTTP request
+	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		return nil, err
+	}
+
+	// Set the necessary headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+p.APIKey)
+
+	// Execute the request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}(resp.Body)
+	// Read the response body
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if the request was successful
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d, body: %s", resp.StatusCode, string(body))
+	}
+	var responsePayload responsePayload
+	if err := json.Unmarshal(body, &responsePayload); err != nil {
+		return nil, err
+	}
+
+	return []byte(responsePayload.Choices[0].Message.Content), nil
+}```
+</textarea>
+</section>
+
+<section data-markdown>
+  <textarea data-template>
+  ## How do we 'talk' with LLMs
+  ```shell
+  go run ./cmd/talk
+  ```
+  
+  ```go [9-14|15-24|25-31]
+  package main
+  
+  import (
+    "fmt"
+    "github.com/yonidavidson/gopherconil.talk/prompt"
+    "github.com/yonidavidson/gopherconil.talk/provider"
+  )
+  
+  func main() {
+    p, err := provider.NewOpenAIProvider()
+    if err != nil {
+      fmt.Println("Error:", err)
+      return
+    }
+    messages := []prompt.Message{
+      {
+        Role:    prompt.RoleSystem,
+        Content: "You are a helpful assistant that provides concise and accurate information.",
+      },
+      {
+        Role:    prompt.RoleUser,
+        Content: "Translate the following English text to French: 'Hello, how are you",
+      },
+    }
+    r, err := p.ChatCompletion(messages)
+    if err != nil {
+      fmt.Println("Error:", err)
+      return
+    }
+    fmt.Println(string(r))
+  }
+  ```
+  </textarea>
+  </section>
+
+<section data-markdown>
+<textarea data-template>
+## Prompt
+
+![Prompt Engineering](images/prompt.svg)
+
+Note:
+* Prompt engineering is a very important part of developing the LLM side of the agent.
+* We need to be able to not only modify it, but create easy way to evaluate, modify based on limitations such as tokesn
+limit or if a specific context was provided
+* Some of the things we care about to experiment with is Priority (meaning how many tokens from total can they consume) and the lower the priorty the first one to reduce tokens 
+* Location in the prompt - being far from the 'user query' usually means being less in the context  - a very large context and in the end user query, maybe some of that context will not really be addressed.
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## Prompt
+```go 
+`<system>{{.SystemPrompt}}</system>
+{{.ChatHistory}}
+<user>
+Context: {{limitTokens .RAGContext (multiply .MaxTokens 0.2)}}
+User Query: {{.UserQuery}}</user>`
+```
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## Prompt
+
+```go [|27-55|73-82|90-103]
+package prompt
+
+import (
+	"fmt"
+	"regexp"
+	"strings"
+	"text/template"
+)
+
+type (
+	// Message represents a message with a role and content.
+	Message struct {
+		Role    Role
+		Content string
+	}
+	// Role represents the role of a message.
+	Role string
+)
+
+const (
+	RoleSystem    Role = "system"
+	RoleUser      Role = "user"
+	RoleAssistant Role = "assistant"
+)
+
+// ParseMessages transforms the prompt into a slice of messages.
+func ParseMessages(input string, data any) ([]Message, error) {
+	pt, err := parse(input, data)
+	if err != nil {
+		return nil, err
+	}
+	input = string(pt)
+	// Validate tags before parsing
+	if err := validate(pt); err != nil {
+		return nil, err
+	}
+	var messages []Message
+
+	// Regular expression to match tags and their content
+	re := regexp.MustCompile(`<(system|user|assistant)>([\s\S]*?)</(system|user|assistant)>`)
+
+	// Find all matches in the input string
+	matches := re.FindAllStringSubmatch(input, -1)
+
+	for _, match := range matches {
+		role := Role(match[1])
+		content := strings.TrimSpace(match[2])
+
+		message := Message{
+			Role:    role,
+			Content: content,
+		}
+
+		messages = append(messages, message)
+	}
+
+	return messages, nil
+}
+
+// validate checks if the input string has matching opening and closing tags for each role.
+func validate(input []byte) error {
+	roles := []string{"system", "user", "assistant"}
+	for _, role := range roles {
+		openCount := strings.Count(string(input), "<"+role+">")
+		closeCount := strings.Count(string(input), "</"+role+">")
+		if openCount != closeCount {
+			return fmt.Errorf("mismatched tags for role %s: %d opening, %d closing", role, openCount, closeCount)
+		}
+	}
+	return nil
+}
+
+func parse(promptTemplate string, data any) ([]byte, error) {
+	tmpl, err := template.New("talk").Funcs(template.FuncMap{
+		"limitTokens": limitTokens,
+		"multiply": func(a, b float64) float64 {
+			return a * b
+		},
+	}).Parse(promptTemplate)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing template: %v", err)
+	}
+	var result strings.Builder
+	if err := tmpl.Execute(&result, data); err != nil {
+		return nil, fmt.Errorf("error executing template: %v", err)
+	}
+	return []byte(result.String()), nil
+}
+
+func limitTokens(s string, maxTokens float64) string {
+	const avgTokenLength = 4 // Average token length heuristic
+	maxChars := int(maxTokens * avgTokenLength)
+
+	if len(s) <= maxChars {
+		return s
+	}
+
+	limited := s[:maxChars]
+	lastStop := strings.LastIndexAny(limited, ".?,")
+	if lastStop != -1 {
+		return limited[:lastStop+1]
+	}
+	return limited
+}```
+
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## Prompt
+```shell
+go run ./cmd/prompt
+```
+
+```go [9-13|26-30|38-43]
+package main
+
+import (
+	"fmt"
+	"github.com/yonidavidson/gopherconil.talk/prompt"
+	"github.com/yonidavidson/gopherconil.talk/provider"
+)
+
+const promptTemplate = `<system>{{.SystemPrompt}}</system>
+{{.ChatHistory}}
+<user>
+Context: {{limitTokens .RAGContext (multiply .MaxTokens 0.2)}}
+User Query: {{.UserQuery}}</user>`
+
+type (
+	promptData struct {
+		MaxTokens    float64
+		RAGContext   string
+		UserQuery    string
+		ChatHistory  string
+		SystemPrompt string
+	}
+)
+
+func main() {
+	maxTokens := 200
+	ragContext := "Paris, the capital of France, is a major European city and a global center for art, fashion, gastronomy, and culture. Its 19th-century cityscape is crisscrossed by wide boulevards and the River Seine. Beyond such landmarks as the Eiffel Tower and the 12th-century, Gothic Notre-Dame cathedral, the city is known for its cafe culture and designer boutiques along the Rue du Faubourg Saint-Honoré."
+	userQuery := "Can you tell me about the history and main attractions of Paris? Also, what`s the best time to visit and are there any local customs I should be aware of?"
+	chatHistory := "<user>I`m planning a trip to Europe.</user>\n<assistant>That`s exciting! Europe has many wonderful destinations. Do you have any specific countries or cities in mind?</assistant>\n<user>I am thinking about visiting France.</user>\n<assistant>France is a great choice! It offers a rich history, beautiful landscapes, and world-renowned cuisine. Are you interested in visiting Paris or exploring other regions as well?</assistant>"
+	systemPrompt := "You are a knowledgeable and helpful travel assistant. Provide accurate and concise information about destinations, attractions, local customs, and travel tips. When appropriate, suggest off-the-beaten-path experiences that tourists might not typically know about. Always prioritize the safety and cultural sensitivity of the traveler."
+	data := promptData{
+		MaxTokens:    float64(maxTokens),
+		RAGContext:   ragContext,
+		UserQuery:    userQuery,
+		ChatHistory:  chatHistory,
+		SystemPrompt: systemPrompt,
+	}
+	m, err := prompt.ParseMessages(promptTemplate, data)
+	if err != nil {
+		fmt.Printf("Error parsing messages: %v\n", err)
+		return
+	}
+	p, err := provider.NewOpenAIProvider()
+	if err != nil {
+		fmt.Printf("Error creating OpenAI provider: %v\n", err)
+		return
+	}
+	r, err := p.ChatCompletion(m)
+	if err != nil {
+		fmt.Printf("Error getting chat completion: %v\n", err)
+		return
+	}
+	fmt.Println("\n\n\n\n" + string(r))
+}
+
+```
+
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## Prompt
+
+```template
+<system>You are a knowledgeable and helpful travel assistant. Provide accurate and concise information about destinations, attractions, local customs, and travel tips. When appropriate, suggest off-the-beaten-path experiences that tourists might not typically know about. Always prioritize the safety and cultural sensitivity of the traveler.</system>
+<user>I`m planning a trip to Europe.</user>
+<assistant>That`s exciting! Europe has many wonderful destinations. Do you have any specific countries or cities in mind?</assistant>
+<user>I am thinking about visiting France.</user>
+<assistant>France is a great choice! It offers a rich history, beautiful landscapes, and world-renowned cuisine. Are you interested in visiting Paris or exploring other regions as well?</assistant>
+<user>
+Context: Paris, the capital of France, is a major European city and a global center for art, fashion, gastronomy, and culture.
+User Query: Can you tell me about the history and main attractions of Paris? Also, what`s the best time to visit and are there any local customs I should be aware of?</user>
+```
+
+Note:
+* Context was cut at the dot
+* Look how we pass a full state of the chat, this is used in chat agents.
+* This can also be used to prompt engineering technique called "chain of tought"
+
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## RAG
+
+* knowledgeable
+* Reasoning
+
+Note:
+* RAG: Retrieval-Augmented Generation
+* Provide the ability to extend the knowledge base
+* Allows a more focued knowledge
+* Any way you have to retreive data works - Data stored in DB, ELK
+* A technique that uses LLM for embedding will be presetned
+* Cool things can be Graphs - for getting relevant information
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+  ## RAG
+
+  ###### Embedding
+  
+  ![Embedding](images/embedding.svg)
+  
+  Note:
+  
+</textarea>
+</section>
+  
+<section data-markdown>
+<textarea data-template>
+## RAG
+
+###### Embedding
+```go [36-63]
+package rag
+
+import (
+	"github.com/yonidavidson/gopherconil.talk/provider"
+	"math"
+	"sort"
+)
+
+type (
+	// Rag is a Retrieval Augmented Generation (RAG) struct
+	Rag struct {
+		provider *provider.OpenAIProvider
+	}
+
+	// Embedding represents a text embedding
+	Embedding struct {
+		text   string
+		vector []float64
+	}
+
+	// scoredEmbedding represents an Embedding with a score
+	scoredEmbedding struct {
+		Embedding
+		score float64
+	}
+)
+
+// New creates a new Rag struct
+func New(provider *provider.OpenAIProvider) *Rag {
+	return &Rag{
+		provider: provider,
+	}
+}
+
+// Embed receives a large text and returns a slice embeddings
+func (r *Rag) Embed(text string, chunkSize int) ([]Embedding, error) {
+	// Split the text into chunks of the specified size
+	var chunks []string
+	for i := 0; i < len(text); i += chunkSize {
+		end := i + chunkSize
+		if end > len(text) {
+			end = len(text)
+		}
+		chunks = append(chunks, text[i:end])
+	}
+
+	// Get embeddings for each chunk
+	vectors, err := r.provider.TextEmbedding(chunks)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create embeddings slice
+	result := make([]Embedding, len(chunks))
+	for i, chunk := range chunks {
+		result[i] = Embedding{
+			text:   chunk,
+			vector: vectors[i],
+		}
+	}
+
+	return result, nil
+}
+
+// Search receives a query and a slice of embeddings and returns the most relevant embeddings
+func (r *Rag) Search(query string, embeddings []Embedding) ([]byte, error) {
+	// Get the Embedding for the query
+	queryEmbedding, err := r.provider.TextEmbedding([]string{query})
+	if err != nil {
+		return nil, err
+	}
+
+	// Calculate the similarity between the query Embedding and each text Embedding
+
+	var scoredEmbeddings []scoredEmbedding
+	for _, emb := range embeddings {
+		score := cosineSimilarity(queryEmbedding[0], emb.vector)
+		scoredEmbeddings = append(scoredEmbeddings, scoredEmbedding{emb, score})
+	}
+
+	// Sort the embeddings by similarity score in descending order
+	sort.Slice(scoredEmbeddings, func(i, j int) bool {
+		return scoredEmbeddings[i].score > scoredEmbeddings[j].score
+	})
+
+	// Convert scored embeddings back to the original embeddings type
+	result := make([]Embedding, len(scoredEmbeddings))
+	for i, se := range scoredEmbeddings {
+		result[i] = se.Embedding
+	}
+
+	return []byte(result[0].text), nil
+}
+
+// cosineSimilarity calculates the cosine similarity between two vectors
+func cosineSimilarity(a, b []float64) float64 {
+	var dotProduct, normA, normB float64
+	for i := range a {
+		dotProduct += a[i] * b[i]
+		normA += a[i] * a[i]
+		normB += b[i] * b[i]
+	}
+	return dotProduct / (math.Sqrt(normA) * math.Sqrt(normB))
+}
+```
+</textarea>  
+</section>
+
+<section data-markdown>
+<textarea data-template>
+    ## RAG
+  
+    ###### Search
+    
+    ![Search](images/search.svg)
+    
+    Note:
+    
+</textarea>
+</section>
+
+<section data-markdown>
+  <textarea data-template>
+  ## RAG
+  
+  ###### Search
+  ```go [65-93|95-104]
+  package rag
+  
+  import (
+    "github.com/yonidavidson/gopherconil.talk/provider"
+    "math"
+    "sort"
+  )
+  
+  type (
+    // Rag is a Retrieval Augmented Generation (RAG) struct
+    Rag struct {
+      provider *provider.OpenAIProvider
+    }
+  
+    // Embedding represents a text embedding
+    Embedding struct {
+      text   string
+      vector []float64
+    }
+  
+    // scoredEmbedding represents an Embedding with a score
+    scoredEmbedding struct {
+      Embedding
+      score float64
+    }
+  )
+  
+  // New creates a new Rag struct
+  func New(provider *provider.OpenAIProvider) *Rag {
+    return &Rag{
+      provider: provider,
+    }
+  }
+  
+  // Embed receives a large text and returns a slice embeddings
+  func (r *Rag) Embed(text string, chunkSize int) ([]Embedding, error) {
+    // Split the text into chunks of the specified size
+    var chunks []string
+    for i := 0; i < len(text); i += chunkSize {
+      end := i + chunkSize
+      if end > len(text) {
+        end = len(text)
+      }
+      chunks = append(chunks, text[i:end])
+    }
+  
+    // Get embeddings for each chunk
+    vectors, err := r.provider.TextEmbedding(chunks)
+    if err != nil {
+      return nil, err
+    }
+  
+    // Create embeddings slice
+    result := make([]Embedding, len(chunks))
+    for i, chunk := range chunks {
+      result[i] = Embedding{
+        text:   chunk,
+        vector: vectors[i],
+      }
+    }
+  
+    return result, nil
+  }
+  
+  // Search receives a query and a slice of embeddings and returns the most relevant embeddings
+  func (r *Rag) Search(query string, embeddings []Embedding) ([]byte, error) {
+    // Get the Embedding for the query
+    queryEmbedding, err := r.provider.TextEmbedding([]string{query})
+    if err != nil {
+      return nil, err
+    }
+  
+    // Calculate the similarity between the query Embedding and each text Embedding
+  
+    var scoredEmbeddings []scoredEmbedding
+    for _, emb := range embeddings {
+      score := cosineSimilarity(queryEmbedding[0], emb.vector)
+      scoredEmbeddings = append(scoredEmbeddings, scoredEmbedding{emb, score})
+    }
+  
+    // Sort the embeddings by similarity score in descending order
+    sort.Slice(scoredEmbeddings, func(i, j int) bool {
+      return scoredEmbeddings[i].score > scoredEmbeddings[j].score
+    })
+  
+    // Convert scored embeddings back to the original embeddings type
+    result := make([]Embedding, len(scoredEmbeddings))
+    for i, se := range scoredEmbeddings {
+      result[i] = se.Embedding
+    }
+  
+    return []byte(result[0].text), nil
+  }
+  
+  // cosineSimilarity calculates the cosine similarity between two vectors
+  func cosineSimilarity(a, b []float64) float64 {
+    var dotProduct, normA, normB float64
+    for i := range a {
+      dotProduct += a[i] * b[i]
+      normA += a[i] * a[i]
+      normB += b[i] * b[i]
+    }
+    return dotProduct / (math.Sqrt(normA) * math.Sqrt(normB))
+  }
+  ```
+</textarea>  
+</section>
+
+<section data-markdown>
+<textarea data-template>
+    ## Rag
+    ```shell
+    go run ./cmd/rag
+    ```
+```go [26-40|45-54|64-70|10-15|185-195]
+package main
+
+import (
+	"fmt"
+	"github.com/yonidavidson/gopherconil.talk/prompt"
+	"github.com/yonidavidson/gopherconil.talk/provider"
+	"github.com/yonidavidson/gopherconil.talk/rag"
+)
+
+const promptTemplate = `<system>{{.SystemPrompt}}</system>
+<user>
+Context: 
+{{.RAGContext}}
+
+User Query: {{.UserQuery}}</user>`
+
+type (
+	promptData struct {
+		MaxTokens    float64
+		RAGContext   string
+		UserQuery    string
+		SystemPrompt string
+	}
+)
+
+func main() {
+	p, err := provider.NewOpenAIProvider()
+	if err != nil {
+		fmt.Printf("Error creating provider: %v\n", err)
+		return
+	}
+	r := rag.New(p)
+	es, err := r.Embed(txt, 1000)
+	if err != nil {
+		fmt.Printf("Error embedding text: %v\n", err)
+		return
+	}
+	fmt.Printf("Number of embeddings: %d\n", len(es))
+	userQuery := "What where the conclusions of the research?"
+	ragContext, err := r.Search(userQuery, es)
+	if err != nil {
+		fmt.Printf("Error searching text: %v\n", err)
+		return
+	}
+	m, err := prompt.ParseMessages(promptTemplate, promptData{
+		MaxTokens:    1000,
+		RAGContext:   string(ragContext),
+		UserQuery:    userQuery,
+		SystemPrompt: "Answer the following question based only on the provided context:",
+	})
+	if err != nil {
+		fmt.Printf("Error parsing messages: %v\n", err)
+		return
+	}
+
+	c, err := p.ChatCompletion(m)
+	if err != nil {
+		fmt.Printf("Error getting chat completion: %v\n", err)
+		return
+	}
+	fmt.Println("\n\n\n\n" + string(c))
+}
+
+var txt = `
+Title: Using Deep Learning Techniques for Classifications of Radio Signals
+Author: Yoni Davidson
+Degree: Master of Science in Engineering
+Institution: Ariel University Faculty of Electrical Engineering
+Date: September 2021
+
+Abstract:
+Radio transmission detection and classification without prior signal knowledge is a well-known challenge that has been researched for over 40 years. The evolution of artificial intelligence has opened new avenues for addressing this problem, particularly with the advent of machine learning techniques that can potentially achieve results closer to Shannon’s theoretical limits. The interest in this field has surged again, driven by the need to shift logic to edge devices like IoT and cellphones and to offload logic from hardware to software, enhancing flexibility for various applications, including military communications and radio interference detection.
+
+The objectives of this research were twofold: first, to fine-tune and improve AI methods for classifying radio transmissions, and second, to develop a new generic tool for solving this classification problem. This study integrates mathematical domain knowledge with machine learning techniques, optimizing class grouping to enhance performance. The results demonstrated improved classification accuracy without the need for additional data or changes to the neural network architecture.
+
+Introduction:
+
+1.1 Literature Review:
+
+Analog Modulation:
+Analog modulation techniques are essential in transferring low-frequency baseband signals over higher-frequency signals like radio frequencies. Key methods include:
+
+Amplitude Modulation (AM): Modifies the amplitude of the carrier signal to match the modulating signal. Variants include Double Side Band Suppressed Carrier (DSBSC), Single Sideband Suppressed Carrier (SSBSC), and Vestigial Sideband Amplitude Modulation (VSBAM).
+Angular Modulation: Involves modulating the frequency or phase of the carrier signal, leading to Frequency Modulation (FM) and Phase Modulation (PM).
+Frequency Modulation (FM): Encodes information by varying the instantaneous frequency of the carrier wave.
+Phase Modulation (PM): Modulates the phase of the carrier wave to follow the amplitude of the message signal.
+Digital Modulation:
+Digital Modulation (DM) uses discrete signals to modulate a carrier wave. The three main types are:
+
+Frequency Shift Keying (FSK): Transmits digital information through discrete frequency changes in the carrier signal.
+Phase Shift Keying (PSK): Modifies the phase of the carrier signal by varying sine and cosine inputs.
+Amplitude Shift Keying (ASK): Represents digital data as variations in the amplitude of the carrier wave.
+Modulation Recognition:
+Automatic modulation recognition has gained significant attention, particularly in military and academic research. It is a crucial component of communication intelligence (COMINT) systems, which typically include a receiver front-end, a modulation recognizer, and an output stage. The recognition process often begins with signal demodulation, requiring accurate knowledge of the signal's modulation type.
+
+Deep Learning:
+Deep learning, a subset of machine learning, involves using neural networks to learn data representations through multiple layers of abstraction. In image recognition, for example, deep learning models might first recognize edges, then patterns, and eventually entire objects like faces. This layered approach, called an artificial neural network (ANN), is also effective in signal processing tasks.
+
+Neural Networks:
+Artificial neural networks (ANNs) are computational systems inspired by biological neural networks. They consist of interconnected layers of nodes (neurons) that process input data and generate outputs. ANNs are versatile and have been applied to tasks ranging from image classification to natural language processing.
+
+Convolutional Neural Networks (CNNs):
+CNNs are a type of deep learning model specifically designed for image analysis. They use convolutional layers to automatically learn spatial hierarchies of features, making them particularly effective for tasks like image and video recognition, medical image analysis, and more.
+
+Bayes’ Theorem:
+Bayes’ theorem is a fundamental concept in probability theory, describing how to update the probability of an event based on new evidence. In the context of machine learning, Bayesian inference, a method derived from Bayes’ theorem, is often used to improve model predictions by incorporating prior knowledge.
+
+XGBoost:
+XGBoost is a powerful gradient boosting framework that has gained popularity for its efficiency and performance in machine learning competitions. It is particularly well-suited for problems with a rich feature set and a limited number of samples.
+
+1.2 Objective:
+The goal of this research was to enhance the accuracy of a neural network model used for radio signal classification. By integrating domain knowledge into the model, the study aimed to improve classification performance without increasing data size or modifying the network's architecture.
+
+1.3 Organization of the Thesis:
+The thesis is organized into five chapters. Chapter 1 introduces the problem and reviews the relevant literature. Chapter 2 outlines the methodology used to improve classification accuracy, including the application of Bayesian statistics. Chapter 3 presents the experimental results, comparing the performance of base and grouped models. Chapter 4 discusses the findings, and Chapter 5 concludes with a summary of results and recommendations for future research.
+
+Methodology:
+
+2.1 Accuracy Improvement by Bayesian Network:
+The research builds on a previous study that achieved an 84.7% accuracy rate in classifying 11 different modulations using a basic neural network. The dataset used included 8 digital and 3 analog modulations commonly found in wireless communication systems. The signals were modulated at a rate of approximately 8 samples per symbol with a normalized average transmit power of 0dB. The dataset was analyzed in the time domain, and visual similarities between different modulations were observed.
+
+The classification errors were analyzed using a confusion matrix, which revealed that certain modulations were often confused with one another. Based on these findings, the modulations were grouped into categories to improve classification accuracy. For example, QAM16 and QAM64 were grouped together, as were AM-DSB, AM-SSB, and WBFM.
+
+The grouped modulations were then classified using machine learning techniques based on statistical features. The Python library tsfresh was used to automatically calculate a large number of time-series characteristics, and the XGBoost algorithm was employed to classify modulations within each group. The results indicated that this approach significantly improved classification accuracy, particularly for modulations that were difficult to distinguish in the original model.
+
+2.2 Differentiating Between Modulations in the Same Groups:
+To further refine the classification process, statistical features were extracted from the grouped modulations using tsfresh. XGBoost was then applied to classify modulations within each group. The features that had the most significant impact on classification accuracy were identified using the eli5 library, which provides an explanation of the model's decisions.
+
+For example, the "value__absolute_sum_of_changes" feature was found to be particularly important in distinguishing between CPFSK and GFSK modulations. By analyzing these features, the researchers were able to gain insights into the underlying characteristics of each modulation and improve the classification model accordingly.
+
+Results:
+
+3.1 Comparing Base and Grouped Models:
+
+3.1.1 Training Properties Comparison:
+The research compared the performance of the Classification Base Model (CBM) and the Classification Grouped Model (CGM). The CGM outperformed the CBM in several key areas:
+
+Training Efficiency: The CGM required fewer resources for training, with each epoch taking 25% less time than the CBM.
+Initial Error Reduction: The CGM showed a smaller error rate from the beginning of training, indicating that the grouping approach was effective.
+Sensitivity: The CGM achieved a 70% detection rate at -7dB, whereas the CBM required 0dB to reach the same accuracy level.
+3.1.2 Model Results for Signal Lower than Detection Level:
+Both models struggled to detect signals with a Signal-to-Noise Ratio (SNR) lower than -16dB. The system tended to classify noise as AM-SSB, which was expected given the characteristics of the Gaussian noise generated for the experiment.
+
+3.1.3 Model Results for SNR Close to Detection:
+At SNR values of -8dB and higher, the grouped model began to detect modulations more accurately. The CGM showed improved detection rates compared to the CBM, particularly for QAM modulations.
+
+3.1.4 Increase with Detection Rate in Correlation to SNR -6dB to -2dB:
+Both models showed a linear increase in detection rate as the SNR improved. However, the CGM consistently outperformed the CBM across this SNR range.
+
+3.1.5 Increase with Detection Rate in Correlation to SNR 0dB to 4dB:
+As the SNR increased from 0dB to 4dB, the CGM reached near-maximum detection rates, while the CBM continued to show linear improvement.
+
+3.1.6 Increase with Detection Rate in Correlation to SNR 6dB to 10dB:
+At higher SNR values, the CGM maintained its superior performance, achieving maximum detection rates faster than the CBM.
+
+3.1.7 Increase with Detection Rate in Correlation to SNR 12dB to 16dB:
+Both models reached their steady-state detection rates in this SNR range, with the CGM consistently achieving better results.
+
+3.1.8 Best Sample Comparison SNR 18dB:
+At 18dB, both models reached their full detection rates. However, the CGM was more effective at distinguishing between modulations that were challenging for the CBM, such as QAM16, QAM64, and 8PSK.
+
+3.1.9 Final Receiver Diagram:
+The final results showed that the CGM achieved a 5dB improvement in receiver sensitivity compared to the CBM. The grouped approach allowed the same neural network model to achieve higher accuracy without additional training data or changes to the network architecture.
+
+3.2 Comparing in a Subgroup:
+
+3.2.1 QAM16 vs. QAM64:
+The CGM achieved 93.48% accuracy in distinguishing between QAM16 and QAM64 modulations. Key features included the "value__ar_coefficient" and "value__change_quantiles" metrics.
+
+3.2.2 8PSK vs. BPSK vs. QPSK:
+The CGM achieved 82.63% accuracy for this subgroup, with important features including the "value__minimum" and "value__abs_energy."
+
+3.2.3 AM-DSB vs. AM-SSB vs. WBFM:
+The CGM achieved 82.22% accuracy, with the "value__standard_deviation" and "value__absolute_sum_of_changes" being the most influential features.
+
+3.2.4 CPFSK vs. GFSK:
+The CGM achieved a perfect 100% accuracy rate in distinguishing between CPFSK and GFSK, with the "value__absolute_sum_of_changes" feature being the most significant.
+
+Discussion:
+
+4.1 Review of Main Findings:
+The research demonstrated that grouping modulations based on confusion matrix results and domain knowledge significantly improves classification performance. The CGM outperformed the CBM in both accuracy and sensitivity, making it a more effective tool for practical applications in radio signal classification. By leveraging prior knowledge and optimizing class grouping, the researchers achieved a 10% improvement in detection success rate.
+
+This approach also reduced training time, making the CGM more efficient than the CBM. The methodology used in this study can be applied to other domains where signal classification is required, particularly in scenarios with limited data or computational resources.
+
+Conclusion:
+
+5.1 Summary of Results:
+The study successfully increased the detection rate by 10% without increasing the dataset size or altering the neural network architecture. The research highlights the importance of combining deep learning with domain knowledge to solve complex engineering problems. The methodology developed in this study provides a framework for improving classification performance in various signal processing applications.
+
+5.2 Recommendations for Further Studies:
+Future research should explore the application of this methodology to edge devices, where limited memory and energy constraints require efficient solutions. The approach could also be adapted for hybrid systems that combine deep learning with statistical methods to optimize performance on resource-constrained devices.
+
+Bibliography:
+The thesis references a range of studies on deep learning, modulation techniques, and signal processing, providing a comprehensive foundation for the research.
+`   
+</textarea>
+</section>
+    
+<section data-markdown>
+<textarea data-template>
+## Agents
+
+* One Shot Agent (with user and history)
+* Workflow
+* Goal
+
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+  ## Agents
+
+  ```
+     RAG Agent         Structured Data Agent
+       O                       O
+      /|\                     /|\
+      / \                     / \
+  ```
+ </textarea> 
+</section>
+
+<section data-markdown>
+<textarea data-template>
+ ## Agents
+
+ ```  
+ RAG Agent                Structured Data Agent
+    |                              |
+    |  Get conclusions             |
+    |-------------------------->   |
+    |                              |
+    |                     Ask 3 questions
+    |   <--------------------------|
+    |                              |
+    |  Answer question 1           |
+    |-------------------------->   |
+    |                              |
+    |  Answer question 2           |
+    |-------------------------->   |
+    |                              |
+    |  Answer question 3           |
+    |-------------------------->   |
+    |                              |
+```
+   
+</textarea> 
+</section>
+  
+<section data-markdown>
+  <textarea data-template>
+   ## Agents
+  
+   ```shell
+   go run ./cmd/agent
+   ```
+
+   ```go[10-17|18-29|45-49|69-72|73-84]
+   import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/yonidavidson/gopherconil.talk/agent"
+	"github.com/yonidavidson/gopherconil.talk/provider"
+	"github.com/yonidavidson/gopherconil.talk/rag"
+)
+
+const (
+	ragAgentTemplate = `<system>{{.SystemPrompt}}</system>
+<user>
+{{if .RAGContext}}Context: 
+{{.RAGContext}}{{end}}
+
+User Query: {{.UserQuery}}</user>`
+
+	structuredDataAgentTemplate = `<system>You are a API that returns a structured json based on content </system>
+<user>
+Based on this content:
+{{.UserQuery}} 
+return a list of questions to ask in a json as follows:
+{"questions": ["question1", "question2"]}
+each question should as for an insight on the content.
+make the questions rather short no more then 5 words.
+limit the number of questions to 3.
+</user>`
+)
+
+func main() {
+	p, err := provider.NewOpenAIProvider()
+	if err != nil {
+		fmt.Printf("Error creating provider: %v\n", err)
+		return
+	}
+	r := rag.New(p)
+	es, err := r.Embed(txt, 1000)
+	if err != nil {
+		fmt.Printf("Error embedding text: %v\n", err)
+		return
+	}
+	ra := agent.New(p, r, es)
+	sa := agent.New(p, nil, nil)
+
+	rac, err := ra.HandleUserQuery(
+		ragAgentTemplate,
+		"Answer the following question based only on the provided context:",
+		"What where the conclusions of the research?",
+	)
+	if err != nil {
+		fmt.Printf("Error handling user query: %v\n", err)
+		return
+	}
+	printRagAgentResponse(rac)
+
+	sac, err := sa.HandleUserQuery(
+		structuredDataAgentTemplate,
+		"",
+		string(rac),
+	)
+	if err != nil {
+		fmt.Printf("Error handling user query: %v\n", err)
+		return
+	}
+	printStructuredDataAgentResponse(sac)
+	var questions struct {
+		Questions []string `json:"questions"`
+	}
+	if err := json.Unmarshal(sac, &questions); err != nil {
+		fmt.Println("Error parsing JSON:", err)
+		return
+	}
+	for _, question := range questions.Questions {
+		crag, err := ra.HandleUserQuery(
+			ragAgentTemplate,
+			"Answer the following question based only on the provided context:",
+			question,
+		)
+		if err != nil {
+			fmt.Printf("Error handling user query: %v\n", err)
+			return
+		}
+		printRagAgentResponse(crag)
+	}
+
+}
+
+func printRagAgentResponse(response []byte) {
+	fmt.Println("***Rag Agent***" + "\n" + string(response) + "\n")
+}
+
+func printStructuredDataAgentResponse(response []byte) {
+	fmt.Println("***Structured Data Agent***" + "\n" + string(response) + "\n")
+}
+
+var txt = `
+Title: Using Deep Learning Techniques for Classifications of Radio Signals
+Author: Yoni Davidson
+```
+     
+</textarea> 
+</section>
+
+<section data-markdown>
+<textarea data-template>
+
+## Go Create Your Own Agent! 🚀
+
+Tweet about it and tag us:
+  
+[@gopherconil](https://twitter.com/gopherconil) [@yonidavidson](https://twitter.com/yonidavidson)
+  
+[github.com/yonidavidson/gopherconil.talk](https://github.com/yonidavidson/gopherconil.talk)
+  
+Let's advance AI together! 🐹💻🤖
+  
+</textarea>
+</section>
+
+<!--<section>
+<textarea data-markdown=>
+### Ollama
+</textarea>
+</section> -->
+</div>
+</div>
+
+<!-- Include Reveal.js core library -->
+<script src="node_modules/reveal.js/dist/reveal.js"></script>
+
+<!-- Include Highlight.js library -->
+<script src="node_modules/highlight.js/lib/index.js"></script>
+
+<!-- Include the Highlight.js plugin for Reveal.js -->
+<script src="node_modules/reveal.js/plugin/highlight/highlight.js"></script>
+
+<!-- Include the Markdown plugin for Reveal.js -->
+<script src="node_modules/reveal.js/plugin/markdown/markdown.js"></script>
+
+<script src="node_modules/reveal.js/plugin/notes/notes.js"></script>
+<script src="socket.io/socket.io.js"></script>
+<script src="node_modules/reveal-notes-server/client.js"></script>
+
+<!-- Initialize Reveal.js and Highlight.js -->
+<script>
+    // Initialize Reveal.js
+    Reveal.initialize({
+        plugins: [RevealMarkdown, RevealHighlight, RevealNotes],        
+    });
+
+    // Initialize syntax highlighting
+    hljs.highlightAll();
+</script>
+</body>
+</html>
