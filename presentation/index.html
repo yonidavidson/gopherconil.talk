@@ -102,6 +102,8 @@ Note:
 | Gemini 1.5 Flash | $0.075                    | $0.30                      |
 
 Note:
+1.Input tokens are the tokens that you send to the model (i.e., your prompts or queries).
+2.Output tokens are the tokens that the model generates in response.
 * Every token around 3,4 words
 * When you train LLMs you don't provide strings but you map them to tokens so the LLM sees tokens in, tokens out.
 * Some tokens are reserved for data set purposes - such as "User" or "Assistant", the prompts are inserted with gaps 
@@ -232,6 +234,16 @@ func (p OpenAIProvider) ChatCompletion(m []prompt.Message) ([]byte, error) {
 
 	return []byte(responsePayload.Choices[0].Message.Content), nil
 }```
+
+Note:
+API request configuration for GPT-4:
+Model: "gpt-4o-mini-2024-07-18" (Specific version of GPT-4)
+Messages: conversation history and current query
+MaxTokens: 1000 (Limits response length to 1000 tokens)
+Temperature: 0.5 (Balances between deterministic and creative outputs)
+TopP: 1.0 (Considers all possible tokens during generation)
+N: 1 (Generates a single response)
+Stop: nil (No custom stopping criteria)
 </textarea>
 </section>
 
