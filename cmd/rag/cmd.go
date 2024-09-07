@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/yonidavidson/gopherconil.talk/prompt"
 	"github.com/yonidavidson/gopherconil.talk/provider"
 	"github.com/yonidavidson/gopherconil.talk/rag"
@@ -42,6 +43,7 @@ func main() {
 		fmt.Printf("Error searching text: %v\n", err)
 		return
 	}
+	fmt.Println("RAG CONTEXT:\n " + string(ragContext))
 	m, err := prompt.ParseMessages(promptTemplate, promptData{
 		MaxTokens:    1000,
 		RAGContext:   string(ragContext),
