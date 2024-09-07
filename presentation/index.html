@@ -99,7 +99,15 @@ Note:
 | Model            | Price per 1M input tokens | Price per 1M output tokens |
 |------------------|---------------------------|----------------------------|            
 | GPT-4o mini      | $0.15                     | $0.6                       |
-| Gemini 1.5 Flash | $0.075                    | $0.30                      |            
+| Gemini 1.5 Flash | $0.075                    | $0.30                      |
+
+Note:
+* Every token around 3,4 words
+* When you train LLMs you don't provide strings but you map them to tokens so the LLM sees tokens in, tokens out.
+* Some tokens are reserved for data set purposes - such as "User" or "Assistant", the prompts are inserted with gaps 
+and the models are trained to "fill the gap"
+* A lot of caching can be done, so this is actually only when you "hit your LLM"
+
 </textarea>
 </section>
 
@@ -112,6 +120,13 @@ Note:
 | Azure          |            |   ✓         |     ✓     |                   |    ✓     |
 | AWS            |     ✓      |             |     ✓     |                   |    ✓     |
 | Google Cloud   |    ✓       |             |     ✓     |  ✓                |    ✓     |
+
+
+Note:
+* Not in many industries we can say that we are using state of the art.
+* Every 4 months, prices drop and a new tier of models are avialble
+* When I joined Tabnine a bit over a year ago, gpt3.5 was out and we were - this is amazing the chat works so good! 
+
 </textarea>
 </section>
 
@@ -122,6 +137,12 @@ Note:
 * Cloud providers provide both SDK based protection accessing your LLM but also ensure that they don't store or train on your data.
 
 * Most AI providers today have 'Enterprise' tier that ensure data protection and rate limits.
+
+Note:
+* Everyone from weapon companies to Insurance are using LLMs in a way.
+* No real blockes are out there to sell to any customer, worth case you can always self host amazing models, Lamma models for example
+or some companies such as Mistral give you the tooling.
+
 </textarea>
 </section>
 
@@ -132,6 +153,12 @@ Note:
 * The world is split into Providers and AI Models
 
 * For example - Azure and OpenAI are providers for the GPT-4o-mini model
+
+Note:
+* Frameworks are there - They provide access to all LLMs, but there is a price you pay
+- you get all the framework (Gorrilla when all you need Banana)
+- in the goal of being generic, you lose access to some super important metadata, for example openAI has a system
+of rate limit information in the headers.
 </textarea>
 </section>
 
