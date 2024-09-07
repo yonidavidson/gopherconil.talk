@@ -247,6 +247,177 @@ limit or if a specific context was provided
 </textarea>
 </section>
 
+<section data-markdown>
+<textarea data-template>
+## Prompt
+```go 
+`<system>{{.SystemPrompt}}</system>
+{{.ChatHistory}}
+<user>
+Context: {{limitTokens .RAGContext (multiply .MaxTokens 0.2)}}
+User Query: {{.UserQuery}}</user>`
+```
+
+```go [1-4|5-9|17]
+func main() {
+	maxTokens := 200
+	ragContext := "Paris, the capital of France, is a major European city and a global center for art, fashion, gastronomy, and culture. Its 19th-century cityscape is crisscrossed by wide boulevards and the River Seine. Beyond such landmarks as the Eiffel Tower and the 12th-century, Gothic Notre-Dame cathedral, the city is known for its cafe culture and designer boutiques along the Rue du Faubourg Saint-Honoré."
+	userQuery := "Can you tell me about the history and main attractions of Paris? Also, what`s the best time to visit and are there any local customs I should be aware of?"
+	chatHistory := "<user>I`m planning a trip to Europe.</user>\n
+  <assistant>That`s exciting! Europe has many wonderful destinations. Do you have any specific countries or cities in mind?</assistant>
+  <user>I am thinking about visiting France.</user>\n
+  <assistant>France is a great choice! It offers a rich history, beautiful landscapes, and world-renowned cuisine. Are you interested in visiting Paris or exploring other regions as well?</assistant>"
+	systemPrompt := "You are a knowledgeable and helpful travel assistant. Provide accurate and concise information about destinations, attractions, local customs, and travel tips. When appropriate, suggest off-the-beaten-path experiences that tourists might not typically know about. Always prioritize the safety and cultural sensitivity of the traveler."
+	data := promptData{
+		MaxTokens:    float64(maxTokens),
+		RAGContext:   ragContext,
+		UserQuery:    userQuery,
+		ChatHistory:  chatHistory,
+		SystemPrompt: systemPrompt,
+	}
+	m, err := prompt.ParseMessages(promptTemplate, data)
+	if err != nil {
+		fmt.Printf("Error parsing messages: %v\n", err)
+		return
+	}
+	p, err := provider.NewOpenAIProvider()
+	if err != nil {
+		fmt.Printf("Error creating OpenAI provider: %v\n", err)
+		return
+	}
+	r, err := p.ChatCompletion(m)
+	if err != nil {
+		fmt.Printf("Error getting chat completion: %v\n", err)
+		return
+	}
+	fmt.Println("\n\n\n\n" + string(r))
+}
+```
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## Prompt
+
+```go [|27-55|73-82|90-103]
+package prompt
+
+import (
+	"fmt"
+	"regexp"
+	"strings"
+	"text/template"
+)
+
+type (
+	// Message represents a message with a role and content.
+	Message struct {
+		Role    Role
+		Content string
+	}
+	// Role represents the role of a message.
+	Role string
+)
+
+const (
+	RoleSystem    Role = "system"
+	RoleUser      Role = "user"
+	RoleAssistant Role = "assistant"
+)
+
+// ParseMessages transforms the prompt into a slice of messages.
+func ParseMessages(input string, data any) ([]Message, error) {
+	pt, err := parse(input, data)
+	if err != nil {
+		return nil, err
+	}
+	input = string(pt)
+	// Validate tags before parsing
+	if err := validate(pt); err != nil {
+		return nil, err
+	}
+	var messages []Message
+
+	// Regular expression to match tags and their content
+	re := regexp.MustCompile(`<(system|user|assistant)>([\s\S]*?)</(system|user|assistant)>`)
+
+	// Find all matches in the input string
+	matches := re.FindAllStringSubmatch(input, -1)
+
+	for _, match := range matches {
+		role := Role(match[1])
+		content := strings.TrimSpace(match[2])
+
+		message := Message{
+			Role:    role,
+			Content: content,
+		}
+
+		messages = append(messages, message)
+	}
+
+	return messages, nil
+}
+
+// validate checks if the input string has matching opening and closing tags for each role.
+func validate(input []byte) error {
+	roles := []string{"system", "user", "assistant"}
+	for _, role := range roles {
+		openCount := strings.Count(string(input), "<"+role+">")
+		closeCount := strings.Count(string(input), "</"+role+">")
+		if openCount != closeCount {
+			return fmt.Errorf("mismatched tags for role %s: %d opening, %d closing", role, openCount, closeCount)
+		}
+	}
+	return nil
+}
+
+func parse(promptTemplate string, data any) ([]byte, error) {
+	tmpl, err := template.New("talk").Funcs(template.FuncMap{
+		"limitTokens": limitTokens,
+		"multiply": func(a, b float64) float64 {
+			return a * b
+		},
+	}).Parse(promptTemplate)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing template: %v", err)
+	}
+	var result strings.Builder
+	if err := tmpl.Execute(&result, data); err != nil {
+		return nil, fmt.Errorf("error executing template: %v", err)
+	}
+	return []byte(result.String()), nil
+}
+
+func limitTokens(s string, maxTokens float64) string {
+	const avgTokenLength = 4 // Average token length heuristic
+	maxChars := int(maxTokens * avgTokenLength)
+
+	if len(s) <= maxChars {
+		return s
+	}
+
+	limited := s[:maxChars]
+	lastStop := strings.LastIndexAny(limited, ".?,")
+	if lastStop != -1 {
+		return limited[:lastStop+1]
+	}
+	return limited
+}```
+
+</textarea>
+</section>
+
+<section data-markdown>
+  <textarea data-template>
+  ## Prompt
+  ```shell
+  go run ./cmd/prompt
+  ```
+  </textarea>
+  </section>
+  
 <!--<section>
 <textarea data-markdown=>
 ### Ollama
