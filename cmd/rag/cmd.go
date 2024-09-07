@@ -44,7 +44,7 @@ func main() {
 		return
 	}
 	fmt.Println("RAG CONTEXT:\n " + string(ragContext))
-	m, err := prompt.ParseMessages(promptTemplate, promptData{
+	m, _, err := prompt.ParseMessages(promptTemplate, promptData{
 		MaxTokens:    1000,
 		RAGContext:   string(ragContext),
 		UserQuery:    userQuery,

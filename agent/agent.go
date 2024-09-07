@@ -2,6 +2,7 @@ package agent
 
 import (
 	"fmt"
+
 	"github.com/yonidavidson/gopherconil.talk/prompt"
 	"github.com/yonidavidson/gopherconil.talk/provider"
 	"github.com/yonidavidson/gopherconil.talk/rag"
@@ -39,7 +40,7 @@ func (a Agent) HandleUserQuery(promptTemplate, systemPrompt, userQuery string) (
 		}
 		ragContext = string(rc)
 	}
-	m, err := prompt.ParseMessages(promptTemplate, promptData{
+	m, _, err := prompt.ParseMessages(promptTemplate, promptData{
 		RAGContext:   ragContext,
 		UserQuery:    userQuery,
 		SystemPrompt: systemPrompt,

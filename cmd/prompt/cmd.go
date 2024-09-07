@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/yonidavidson/gopherconil.talk/prompt"
 	"github.com/yonidavidson/gopherconil.talk/provider"
 )
@@ -35,7 +36,7 @@ func main() {
 		ChatHistory:  chatHistory,
 		SystemPrompt: systemPrompt,
 	}
-	m, err := prompt.ParseMessages(promptTemplate, data)
+	m, _, err := prompt.ParseMessages(promptTemplate, data)
 	if err != nil {
 		fmt.Printf("Error parsing messages: %v\n", err)
 		return
