@@ -441,6 +441,29 @@ func main() {
 
 <section data-markdown>
 <textarea data-template>
+## Prompt
+
+```template
+<system>You are a knowledgeable and helpful travel assistant. Provide accurate and concise information about destinations, attractions, local customs, and travel tips. When appropriate, suggest off-the-beaten-path experiences that tourists might not typically know about. Always prioritize the safety and cultural sensitivity of the traveler.</system>
+<user>I`m planning a trip to Europe.</user>
+<assistant>That`s exciting! Europe has many wonderful destinations. Do you have any specific countries or cities in mind?</assistant>
+<user>I am thinking about visiting France.</user>
+<assistant>France is a great choice! It offers a rich history, beautiful landscapes, and world-renowned cuisine. Are you interested in visiting Paris or exploring other regions as well?</assistant>
+<user>
+Context: Paris, the capital of France, is a major European city and a global center for art, fashion, gastronomy, and culture.
+User Query: Can you tell me about the history and main attractions of Paris? Also, what`s the best time to visit and are there any local customs I should be aware of?</user>
+```
+
+Note:
+* Context was cut at the dot
+* Look how we pass a full state of the chat, this is used in chat agents.
+* This can also be used to prompt engineering technique called "chain of tought"
+
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
 ## RAG
 
 * knowledgeable
