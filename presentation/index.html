@@ -28,6 +28,7 @@ Note:
 * A lot of tools
 * Python and typescript are kings -> we are gophers
 * By the end of the talk you'll be building your own AI agents in Go, I'll share everything.
+* Used My tabnine LLM to write, document build etc!
 
 <img src="https://golang.org/doc/gopher/frontpage.png" alt="Gopher" width="100">
 <footer>by Yoni Davidson</footer>
@@ -315,6 +316,17 @@ limit or if a specific context was provided
 Context: {{limitTokens .RAGContext (multiply .MaxTokens 0.2)}}
 User Query: {{.UserQuery}}</user>`
 ```
+
+Note:
+* By using templates we can store as a simple resource.
+* All the template tooling is available, we can extend as we wish
+* Good abstractin layer, some models or providres require diffrent validations or may support all sort of 
+additional tokens.
+* If you are building a system for customres who need to give you templates you can even extend it to use LLMs
+as part of the methods in the template, for example:
+Limit tokens is used here as a simple text limiter, but can be also used with LLM to digest data.
+* A/B testing of prompts is super crucial, this way its very easy to put all the confiurations and params in the template.
+
 </textarea>
 </section>
 
@@ -515,7 +527,7 @@ User Query: Can you tell me about the history and main attractions of Paris? Als
 ```
 
 Note:
-* Context was cut at the dot
+* Context was cut at the dot.
 * Look how we pass a full state of the chat, this is used in chat agents.
 * This can also be used to prompt engineering technique called "chain of tought"
 
@@ -531,11 +543,11 @@ Note:
 
 Note:
 * RAG: Retrieval-Augmented Generation
-* Provide the ability to extend the knowledge base
-* Allows a more focued knowledge
-* Any way you have to retreive data works - Data stored in DB, ELK
-* A technique that uses LLM for embedding will be presetned
-* Cool things can be Graphs - for getting relevant information
+* Provide the ability to extend the knowledge base, avoid hallucinations 
+* Allows a more focued knowledge to answer from.
+* Any way you have to retreive data works - Data stored in DB, ELK, Graph DB
+* A technique that uses LLM for embedding will be presetned, but this is not mandatory
+* In the world of coding, embedding code is "classic", but we also grab data from IDE, LSP etc.
 </textarea>
 </section>
 
@@ -548,6 +560,10 @@ Note:
   ![Embedding](images/embedding.svg)
   
   Note:
+  The LLM used to embed the vectors , known as embedding models.
+  All providers have list of models that can be used for embedding.
+  This models also work with images as well, so we can also search in more than text.
+  World of Vector DB - exploaded, you can run in sqlite this days, or Postgres.
   
 </textarea>
 </section>
