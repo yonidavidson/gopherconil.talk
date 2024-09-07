@@ -23,6 +23,12 @@
 
 ###### GopherCon Israel 2024
 
+Note:
+* A lot of frameworks
+* A lot of tools
+* Python and typescript are kings -> we are gophers
+* By the end of the talk you'll be building your own AI agents in Go, I'll share everything.
+
 <img src="https://golang.org/doc/gopher/frontpage.png" alt="Gopher" width="100">
 <footer>by Yoni Davidson</footer>
 </textarea>
@@ -43,8 +49,9 @@
 .
 .
 .
+
 Note:
-* I have large experience in dev tools, AI applications and data engineering.
+* I have large experience in dev tools, AI applications Full stack and data engineering.
 * Living in Pardes Chana like many known gophers such as Miki (not far from me).    
 * I manage the remote squad at Tabnine - which is a cool twist for working hybried 
 * At Tabnine we build AI applications for example
@@ -57,7 +64,7 @@ Chat, Agents, RAG (client and server)
 <section data-markdown>
 <textarea data-template>
 ## Agenda
-- State of AI (why wasn’t this talk done last year?)
+- State of AI
 - How do we 'Talk' with LLMs
 - Prompt
 - RAG
@@ -65,7 +72,7 @@ Chat, Agents, RAG (client and server)
 
 Note: 
 1. Agents are getting mainstream
-2. For example, Replit just annonced
+2. For example, Replit just annonced, Tabnine (my squad) will annouce and Github.
 3. This talk shows code, the idea is to see that there is no magic in anything, after the talk just fork and use this infra to build your own agents.
 </textarea>
 </section>
@@ -75,14 +82,20 @@ Note:
 ## State of AI
 - Pricing
 - Availability
-- Privacy      
+- Privacy
+
+Note:
+* A lot of competition on getting developers into building agents.
+* What has changed? we are now being able to scale and run in Ent' enviroment. 
 </textarea>
 </section>
 
 <section data-markdown>
 <textarea data-template>
 ## State of AI - Pricing 
+
 ######  <div style="text-align: left;"> 1M Tokens roughly the equivalent of 2500 pages in a standard book</div>
+
 | Model            | Price per 1M input tokens | Price per 1M output tokens |
 |------------------|---------------------------|----------------------------|            
 | GPT-4o mini      | $0.15                     | $0.6                       |
@@ -93,6 +106,7 @@ Note:
 <section data-markdown>
 <textarea data-template>
 ## State of AI - Availability
+
 | Cloud Provider | Claude 3.5 | GPT-4o-mini | LLaMA 3.1 | Gemini 1.5 Flash  | Mistral  |
 |----------------|------------|-------------|-----------|-------------------|----------|
 | Azure          |            |   ✓         |     ✓     |                   |    ✓     |
