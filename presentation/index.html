@@ -238,6 +238,12 @@ func (p OpenAIProvider) ChatCompletion(m []prompt.Message) ([]byte, error) {
 
 ![Prompt Engineering](images/prompt.svg)
 
+Note:
+* Prompt engineering is a very important part of developing the LLM side of the agent.
+* We need to be able to not only modify it, but create easy way to evaluate, modify based on limitations such as tokesn
+limit or if a specific context was provided
+* Some of the things we care about to experiment with is Priority (meaning how many tokens from total can they consume) and the lower the priorty the first one to reduce tokens 
+* Location in the prompt - being far from the 'user query' usually means being less in the context  - a very large context and in the end user query, maybe some of that context will not really be addressed.
 </textarea>
 </section>
 
