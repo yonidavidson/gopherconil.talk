@@ -2,6 +2,7 @@ package prompt
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
 	"text/template"
@@ -30,6 +31,9 @@ func ParseMessages(input string, data any) ([]Message, error) {
 		return nil, err
 	}
 	input = string(pt)
+	if os.Getenv("SHOW_PROMPT") == "true" {
+		fmt.Println(input)
+	}
 	// Validate tags before parsing
 	if err := validate(pt); err != nil {
 		return nil, err
