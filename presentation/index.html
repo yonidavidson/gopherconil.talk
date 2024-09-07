@@ -23,6 +23,13 @@
 
 ###### GopherCon Israel 2024
 
+Note:
+* A lot of frameworks
+* A lot of tools
+* Python and typescript are kings -> we are gophers
+* By the end of the talk you'll be building your own AI agents in Go, I'll share everything.
+* Used My tabnine LLM to write, document build etc!
+
 <img src="https://golang.org/doc/gopher/frontpage.png" alt="Gopher" width="100">
 <footer>by Yoni Davidson</footer>
 </textarea>
@@ -43,8 +50,9 @@
 .
 .
 .
+
 Note:
-* I have large experience in dev tools, AI applications and data engineering.
+* I have large experience in dev tools, AI applications Full stack and data engineering.
 * Living in Pardes Chana like many known gophers such as Miki (not far from me).    
 * I manage the remote squad at Tabnine - which is a cool twist for working hybried 
 * At Tabnine we build AI applications for example
@@ -57,7 +65,7 @@ Chat, Agents, RAG (client and server)
 <section data-markdown>
 <textarea data-template>
 ## Agenda
-- State of AI (why wasn’t this talk done last year?)
+- State of AI
 - How do we 'Talk' with LLMs
 - Prompt
 - RAG
@@ -65,7 +73,7 @@ Chat, Agents, RAG (client and server)
 
 Note: 
 1. Agents are getting mainstream
-2. For example, Replit just annonced
+2. For example, Replit just annonced, Tabnine (my squad) will annouce and Github.
 3. This talk shows code, the idea is to see that there is no magic in anything, after the talk just fork and use this infra to build your own agents.
 </textarea>
 </section>
@@ -75,29 +83,53 @@ Note:
 ## State of AI
 - Pricing
 - Availability
-- Privacy      
+- Privacy
+
+Note:
+* A lot of competition on getting developers into building agents.
+* What has changed? we are now being able to scale and run in Ent' enviroment. 
 </textarea>
 </section>
 
 <section data-markdown>
 <textarea data-template>
 ## State of AI - Pricing 
+
 ######  <div style="text-align: left;"> 1M Tokens roughly the equivalent of 2500 pages in a standard book</div>
+
 | Model            | Price per 1M input tokens | Price per 1M output tokens |
 |------------------|---------------------------|----------------------------|            
 | GPT-4o mini      | $0.15                     | $0.6                       |
-| Gemini 1.5 Flash | $0.075                    | $0.30                      |            
+| Gemini 1.5 Flash | $0.075                    | $0.30                      |
+
+Note:
+1.Input tokens are the tokens that you send to the model (i.e., your prompts or queries).
+2.Output tokens are the tokens that the model generates in response.
+* Every token around 3,4 words
+* When you train LLMs you don't provide strings but you map them to tokens so the LLM sees tokens in, tokens out.
+* Some tokens are reserved for data set purposes - such as "User" or "Assistant", the prompts are inserted with gaps 
+and the models are trained to "fill the gap"
+* A lot of caching can be done, so this is actually only when you "hit your LLM"
+
 </textarea>
 </section>
 
 <section data-markdown>
 <textarea data-template>
 ## State of AI - Availability
+
 | Cloud Provider | Claude 3.5 | GPT-4o-mini | LLaMA 3.1 | Gemini 1.5 Flash  | Mistral  |
 |----------------|------------|-------------|-----------|-------------------|----------|
 | Azure          |            |   ✓         |     ✓     |                   |    ✓     |
 | AWS            |     ✓      |             |     ✓     |                   |    ✓     |
 | Google Cloud   |    ✓       |             |     ✓     |  ✓                |    ✓     |
+
+
+Note:
+* Not in many industries we can say that we are using state of the art.
+* Every 4 months, prices drop and a new tier of models are avialble
+* When I joined Tabnine a bit over a year ago, gpt3.5 was out and we were - this is amazing the chat works so good! 
+
 </textarea>
 </section>
 
@@ -108,6 +140,12 @@ Note:
 * Cloud providers provide both SDK based protection accessing your LLM but also ensure that they don't store or train on your data.
 
 * Most AI providers today have 'Enterprise' tier that ensure data protection and rate limits.
+
+Note:
+* Everyone from weapon companies to Insurance are using LLMs in a way.
+* No real blockes are out there to sell to any customer, worth case you can always self host amazing models, Lamma models for example
+or some companies such as Mistral give you the tooling.
+
 </textarea>
 </section>
 
@@ -118,6 +156,12 @@ Note:
 * The world is split into Providers and AI Models
 
 * For example - Azure and OpenAI are providers for the GPT-4o-mini model
+
+Note:
+* Frameworks are there - They provide access to all LLMs, but there is a price you pay
+- you get all the framework (Gorrilla when all you need Banana)
+- in the goal of being generic, you lose access to some super important metadata, for example openAI has a system
+of rate limit information in the headers.
 </textarea>
 </section>
 
@@ -191,6 +235,16 @@ func (p OpenAIProvider) ChatCompletion(m []prompt.Message) ([]byte, error) {
 
 	return []byte(responsePayload.Choices[0].Message.Content), nil
 }```
+
+Note:
+API request configuration for GPT-4:
+Model: "gpt-4o-mini-2024-07-18" (Specific version of GPT-4)
+Messages: conversation history and current query
+MaxTokens: 1000 (Limits response length to 1000 tokens)
+Temperature: 0.5 (Balances between deterministic and creative outputs)
+TopP: 1.0 (Considers all possible tokens during generation)
+N: 1 (Generates a single response)
+Stop: nil (No custom stopping criteria)
 </textarea>
 </section>
 
@@ -262,6 +316,17 @@ limit or if a specific context was provided
 Context: {{limitTokens .RAGContext (multiply .MaxTokens 0.2)}}
 User Query: {{.UserQuery}}</user>`
 ```
+
+Note:
+* By using templates we can store as a simple resource.
+* All the template tooling is available, we can extend as we wish
+* Good abstractin layer, some models or providres require diffrent validations or may support all sort of 
+additional tokens.
+* If you are building a system for customres who need to give you templates you can even extend it to use LLMs
+as part of the methods in the template, for example:
+Limit tokens is used here as a simple text limiter, but can be also used with LLM to digest data.
+* A/B testing of prompts is super crucial, this way its very easy to put all the confiurations and params in the template.
+
 </textarea>
 </section>
 
@@ -462,7 +527,7 @@ User Query: Can you tell me about the history and main attractions of Paris? Als
 ```
 
 Note:
-* Context was cut at the dot
+* Context was cut at the dot.
 * Look how we pass a full state of the chat, this is used in chat agents.
 * This can also be used to prompt engineering technique called "chain of tought"
 
@@ -478,11 +543,11 @@ Note:
 
 Note:
 * RAG: Retrieval-Augmented Generation
-* Provide the ability to extend the knowledge base
-* Allows a more focued knowledge
-* Any way you have to retreive data works - Data stored in DB, ELK
-* A technique that uses LLM for embedding will be presetned
-* Cool things can be Graphs - for getting relevant information
+* Provide the ability to extend the knowledge base, avoid hallucinations 
+* Allows a more focued knowledge to answer from.
+* Any way you have to retreive data works - Data stored in DB, ELK, Graph DB
+* A technique that uses LLM for embedding will be presetned, but this is not mandatory
+* In the world of coding, embedding code is "classic", but we also grab data from IDE, LSP etc.
 </textarea>
 </section>
 
@@ -495,6 +560,10 @@ Note:
   ![Embedding](images/embedding.svg)
   
   Note:
+  The LLM used to embed the vectors , known as embedding models.
+  All providers have list of models that can be used for embedding.
+  This models also work with images as well, so we can also search in more than text.
+  World of Vector DB - exploaded, you can run in sqlite this days, or Postgres.
   
 </textarea>
 </section>
