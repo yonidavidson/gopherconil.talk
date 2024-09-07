@@ -17,8 +17,10 @@
 <div class="slides">
 <section data-markdown>
 <textarea data-template>
-# Building AI Agents with Go
-## A Practical Guide
+# Building AI Agents with <span style="color: blue;">Go</span>
+
+###### A Practical Guide
+
 <img src="https://golang.org/doc/gopher/frontpage.png" alt="Gopher" width="100">
 <footer>by Yoni Davidson</footer>
 </textarea>
@@ -26,16 +28,19 @@
 
 <section data-markdown>
 <textarea data-template>
-## About me!
+## About me
 - Married + 1 Daughter and 4 dogs
 <hr/>
-- **Squad Manager @Tabnine** (Current)
-- Founding Engineer At Ariga
-- Data Architect / Tech lead at Bond
-- SW Engineer at Sears Israel
-- SW Engineer at Eyesgiht mobile
-- SW Engineer at Alvarion
 
+- **Squad Manager @Tabnine** (Current)
+
+- Founding Engineer At Ariga
+
+- Data Architect / Tech lead at Bond
+
+.
+.
+.
 Note:
 * I have large experience in dev tools, AI applications and data engineering.
 * Living in Pardes Chana like many known gophers such as Miki (not far from me).    
@@ -51,11 +56,10 @@ Chat, Agents, RAG (client and server)
 <textarea data-template>
 ## Agenda
 - State of AI (why wasn’t this talk done last year?)
-- How do we 'talk' with LLMs
+- How do we 'Talk' with LLMs
 - Prompt
 - RAG
-- One shot agents
-- Workflow agents
+- Agents
 
 Note: 
 1. Agents are getting mainstream
@@ -100,7 +104,8 @@ Note:
 ## State of AI - Privacy
 
 * Cloud providers provide both SDK based protection accessing your LLM but also ensure that they don't store or train on your data.
-* Most AI providers today have "Enterprise" tiers that ensure data protection.
+
+* Most AI providers today have 'Enterprise' tier that ensure data protection and rate limits.
 </textarea>
 </section>
 
@@ -111,49 +116,6 @@ Note:
 * The world is split into Providers and AI Models
 
 * For example - Azure and OpenAI are providers for the GPT-4o-mini model
-</textarea>
-</section>
-
-<section data-markdown>
-<textarea data-template>
-## How do we 'talk' with LLMs
-```shell
-go run ./cmd/talk
-```
-
-```go [9-14|15-24|25-31]
-package main
-
-import (
-	"fmt"
-	"github.com/yonidavidson/gopherconil.talk/prompt"
-	"github.com/yonidavidson/gopherconil.talk/provider"
-)
-
-func main() {
-	p, err := provider.NewOpenAIProvider()
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-	messages := []prompt.Message{
-		{
-			Role:    prompt.RoleSystem,
-			Content: "You are a helpful assistant that provides concise and accurate information.",
-		},
-		{
-			Role:    prompt.RoleUser,
-			Content: "Translate the following English text to French: 'Hello, how are you",
-		},
-	}
-	r, err := p.ChatCompletion(messages)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-	fmt.Println(string(r))
-}
-```
 </textarea>
 </section>
 
@@ -229,6 +191,49 @@ func (p OpenAIProvider) ChatCompletion(m []prompt.Message) ([]byte, error) {
 }```
 </textarea>
 </section>
+
+<section data-markdown>
+  <textarea data-template>
+  ## How do we 'talk' with LLMs
+  ```shell
+  go run ./cmd/talk
+  ```
+  
+  ```go [9-14|15-24|25-31]
+  package main
+  
+  import (
+    "fmt"
+    "github.com/yonidavidson/gopherconil.talk/prompt"
+    "github.com/yonidavidson/gopherconil.talk/provider"
+  )
+  
+  func main() {
+    p, err := provider.NewOpenAIProvider()
+    if err != nil {
+      fmt.Println("Error:", err)
+      return
+    }
+    messages := []prompt.Message{
+      {
+        Role:    prompt.RoleSystem,
+        Content: "You are a helpful assistant that provides concise and accurate information.",
+      },
+      {
+        Role:    prompt.RoleUser,
+        Content: "Translate the following English text to French: 'Hello, how are you",
+      },
+    }
+    r, err := p.ChatCompletion(messages)
+    if err != nil {
+      fmt.Println("Error:", err)
+      return
+    }
+    fmt.Println(string(r))
+  }
+  ```
+  </textarea>
+  </section>
 
 <section data-markdown>
 <textarea data-template>
