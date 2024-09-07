@@ -14,98 +14,106 @@
 </head>
 <body>
 <div class="reveal">
-    <div class="slides">
-        <section data-markdown>
-        <textarea data-template>
-          # Building AI Agents with Go
-          ## A Practical Guide
-          <img src="https://golang.org/doc/gopher/frontpage.png" alt="Gopher" width="100">
-          <footer>by Yoni Davidson</footer>
-        </textarea>
-        </section>
-        <section data-markdown>
-        <textarea data-template>
-          ## About me!
-          - Married + 1 Daughter and 4 dogs
-          <hr/>
-          - **Squad Manager @Tabnine** (Current)
-          - Founding Engineer At Ariga
-          - Data Architect / Tech lead at Bond
-          - SW Engineer at Sears Israel
-          - SW Engineer at Eyesgiht mobile
-          - SW Engineer at Alvarion
-          
-          Note:
-          * I have large experience in dev tools, AI applications and data engineering.
-          * Living in Pardes Chana like many known gophers such as Miki (not far from me).    
-          * I manage the remote squad at Tabnine - which is a cool twist for working hybried 
-          * At Tabnine we build AI applications for example
-            Chat, Agents, RAG (client and server)
-          * Our main languages are typescript , Python and Rust - but I dream at Go at night (and sometimes during the day)
-          * This talk is about building AI agents with Go, which notes for building AI applications if we were gophers.
-        </textarea>
-        </section>
-        <section data-markdown>
-        <textarea data-template>
-          ## Agenda
-          - State of AI (why wasn’t this talk done last year?)
-          - How do we 'talk' with LLMs
-          - Prompt engineering
-          - RAG
-          - One shot agents
-          - Workflow agents
-        </textarea>
-        </section>
-        <section data-markdown>
-        <textarea data-template>
-          ## State of AI
-          - Pricing
-          - Availability
-          - Privacy      
-        </textarea>
-        </section>
-        <section data-markdown>
-          <textarea data-template>
-            ## State of AI - Pricing 
-            ######  <div style="text-align: left;"> 1M Tokens roughly the equivalent of 2500 pages in a standard book</div>
-            | Model            | Price per 1M input tokens | Price per 1M output tokens |
-            |------------------|---------------------------|----------------------------|            
-            | GPT-4o mini      | $0.15                     | $0.6                       |
-            | Gemini 1.5 Flash | $0.075                    | $0.30                      |            
-          </textarea>
-        </section>
-        <section data-markdown>
-          <textarea data-template>
-            ## State of AI - Availability
-            | Cloud Provider | Claude 3.5 | GPT-4o-mini | LLaMA 3.1 | Gemini 1.5 Flash  | Mistral  |
-            |----------------|------------|-------------|-----------|-------------------|----------|
-            | Azure          |            |   ✓         |     ✓     |                   |    ✓     |
-            | AWS            |     ✓      |             |     ✓     |                   |    ✓     |
-            | Google Cloud   |    ✓       |             |     ✓     |  ✓                |    ✓     |
-          </textarea>
-        </section>
-        <section data-markdown>
-          <textarea data-template>
-            ## State of AI - Privacy
-            
-            * Cloud providers provide both SDK based protection accessing your LLM but also ensure that they don't store or train on your data.
-            * Most AI providers today have "Enterprise" tiers that ensure data protection.
-          </textarea>
-        </section>
-        <section data-markdown>
-          <textarea data-template>
-            ## How do we 'talk' with LLMs
-            
-            * The world is split into Providers and AI Models
-            
-            * For example - Azure and OpenAI are providers for the GPT-4o-mini model
-          </textarea>
-        </section>
-        <section data-markdown>
-          <textarea data-template>
-            ## How do we 'talk' with LLMs
-            
-            * OpenAI client - Demo
+<div class="slides">
+<section data-markdown>
+<textarea data-template>
+# Building AI Agents with Go
+## A Practical Guide
+<img src="https://golang.org/doc/gopher/frontpage.png" alt="Gopher" width="100">
+<footer>by Yoni Davidson</footer>
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## About me!
+- Married + 1 Daughter and 4 dogs
+<hr/>
+- **Squad Manager @Tabnine** (Current)
+- Founding Engineer At Ariga
+- Data Architect / Tech lead at Bond
+- SW Engineer at Sears Israel
+- SW Engineer at Eyesgiht mobile
+- SW Engineer at Alvarion
+
+Note:
+* I have large experience in dev tools, AI applications and data engineering.
+* Living in Pardes Chana like many known gophers such as Miki (not far from me).    
+* I manage the remote squad at Tabnine - which is a cool twist for working hybried 
+* At Tabnine we build AI applications for example
+Chat, Agents, RAG (client and server)
+* Our main languages are typescript , Python and Rust - but I dream at Go at night (and sometimes during the day)
+* This talk is about building AI agents with Go, which notes for building AI applications if we were gophers.
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## Agenda
+- State of AI (why wasn’t this talk done last year?)
+- How do we 'talk' with LLMs
+- Prompt engineering
+- RAG
+- One shot agents
+- Workflow agents
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## State of AI
+- Pricing
+- Availability
+- Privacy      
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## State of AI - Pricing 
+######  <div style="text-align: left;"> 1M Tokens roughly the equivalent of 2500 pages in a standard book</div>
+| Model            | Price per 1M input tokens | Price per 1M output tokens |
+|------------------|---------------------------|----------------------------|            
+| GPT-4o mini      | $0.15                     | $0.6                       |
+| Gemini 1.5 Flash | $0.075                    | $0.30                      |            
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## State of AI - Availability
+| Cloud Provider | Claude 3.5 | GPT-4o-mini | LLaMA 3.1 | Gemini 1.5 Flash  | Mistral  |
+|----------------|------------|-------------|-----------|-------------------|----------|
+| Azure          |            |   ✓         |     ✓     |                   |    ✓     |
+| AWS            |     ✓      |             |     ✓     |                   |    ✓     |
+| Google Cloud   |    ✓       |             |     ✓     |  ✓                |    ✓     |
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## State of AI - Privacy
+
+* Cloud providers provide both SDK based protection accessing your LLM but also ensure that they don't store or train on your data.
+* Most AI providers today have "Enterprise" tiers that ensure data protection.
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## How do we 'talk' with LLMs
+
+* The world is split into Providers and AI Models
+
+* For example - Azure and OpenAI are providers for the GPT-4o-mini model
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## How do we 'talk' with LLMs
+
+* OpenAI client - Demo
 ```go [9-14|15-24|25-31]
 package main
 
@@ -139,23 +147,23 @@ func main() {
 	fmt.Println(string(r))
 }
 ```
-            
-          </textarea>
-        </section>    
-        <section data-markdown>
-          <textarea data-template>
-            ## How do we 'talk' with LLMs
-            ```shell
-            go run ./cmd/talk
-            ```
-            
-          </textarea>
-        </section>    
-        <section data-markdown>
-        <textarea data-template>
-          ## How do we 'talk' with LLMs
+</textarea>
+</section>    
+
+<section data-markdown>
+<textarea data-template>
+## How do we 'talk' with LLMs
+```shell
+go run ./cmd/talk
+```
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## How do we 'talk' with LLMs
 ```go [1-8|9-22|23-67|]
-          // ChatCompletion sends a request to the OpenAI API and returns the response as a byte slice.
+// ChatCompletion sends a request to the OpenAI API and returns the response as a byte slice.
 func (p OpenAIProvider) ChatCompletion(m []prompt.Message) ([]byte, error) {
 	// convert from []prompt.Message to []message
 	messages := make([]message, len(m))
@@ -221,14 +229,15 @@ func (p OpenAIProvider) ChatCompletion(m []prompt.Message) ([]byte, error) {
 
 	return []byte(responsePayload.Choices[0].Message.Content), nil
 }```
-        </textarea>
-        </section>
-         <!--<section>
-          <textarea data-markdown=>
-            ### Ollama
-          </textarea>
-        </section> -->
-    </div>
+</textarea>
+</section>
+
+<!--<section>
+<textarea data-markdown=>
+### Ollama
+</textarea>
+</section> -->
+</div>
 </div>
 
 <!-- Include Reveal.js core library -->
@@ -251,7 +260,7 @@ func (p OpenAIProvider) ChatCompletion(m []prompt.Message) ([]byte, error) {
 <script>
     // Initialize Reveal.js
     Reveal.initialize({
-        plugins: [RevealMarkdown, RevealHighlight, RevealNotes],
+        plugins: [RevealMarkdown, RevealHighlight, RevealNotes],        
     });
 
     // Initialize syntax highlighting
