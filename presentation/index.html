@@ -81,13 +81,67 @@ Note:
 <section data-markdown>
 <textarea data-template>
 ## State of AI
-- Pricing
-- Availability
+- Abilities
 - Privacy
+- Availability
+- Pricing
 
 Note:
 * A lot of competition on getting developers into building agents.
 * What has changed? we are now being able to scale and run in Ent' enviroment. 
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+## State of AI - Abilities
+
+- **Text**: Natural language understanding, generation, translation, summarization, and chat
+
+- **Code**: Completion, explanation, and generation across multiple programming languages
+
+- **Voice**: Speech recognition, text-to-speech synthesis, and voice cloning
+
+- **Image**: Object detection, image classification, generation, and editing
+
+- **Video**: Analysis, generation, and editing
+
+- **Multimodal**: Combining text, image, and audio for complex tasks
+</textarea>
+</section>
+	
+<section data-markdown>
+<textarea data-template>
+## State of AI - Privacy
+
+* Cloud providers provide both SDK based protection accessing your LLM but also ensure that they don't store or train on your data.
+
+* Most AI providers today have 'Enterprise' tier that ensure data protection and rate limits.
+
+Note:
+* Everyone from weapon companies to Insurance are using LLMs in a way.
+* No real blockes are out there to sell to any customer, worth case you can always self host amazing models, Lamma models for example
+or some companies such as Mistral give you the tooling.
+
+</textarea>
+</section>
+
+<section data-markdown>
+<textarea data-template>
+	## State of AI - Availability
+	
+	| Cloud Provider | Claude 3.5 | GPT-4o-mini | LLaMA 3.1 | Gemini 1.5 Flash  | Mistral  |
+	|----------------|------------|-------------|-----------|-------------------|----------|
+	| Azure          |            |   ✓         |     ✓     |                   |    ✓     |
+	| AWS            |     ✓      |             |     ✓     |                   |    ✓     |
+	| Google Cloud   |    ✓       |             |     ✓     |  ✓                |    ✓     |
+	
+	
+	Note:
+	* Not in many industries we can say that we are using state of the art.
+	* Every 4 months, prices drop and a new tier of models are avialble
+	* When I joined Tabnine a bit over a year ago, gpt3.5 was out and we were - this is amazing the chat works so good! 
+	
 </textarea>
 </section>
 
@@ -110,41 +164,6 @@ Note:
 * Some tokens are reserved for data set purposes - such as "User" or "Assistant", the prompts are inserted with gaps 
 and the models are trained to "fill the gap"
 * A lot of caching can be done, so this is actually only when you "hit your LLM"
-
-</textarea>
-</section>
-
-<section data-markdown>
-<textarea data-template>
-## State of AI - Availability
-
-| Cloud Provider | Claude 3.5 | GPT-4o-mini | LLaMA 3.1 | Gemini 1.5 Flash  | Mistral  |
-|----------------|------------|-------------|-----------|-------------------|----------|
-| Azure          |            |   ✓         |     ✓     |                   |    ✓     |
-| AWS            |     ✓      |             |     ✓     |                   |    ✓     |
-| Google Cloud   |    ✓       |             |     ✓     |  ✓                |    ✓     |
-
-
-Note:
-* Not in many industries we can say that we are using state of the art.
-* Every 4 months, prices drop and a new tier of models are avialble
-* When I joined Tabnine a bit over a year ago, gpt3.5 was out and we were - this is amazing the chat works so good! 
-
-</textarea>
-</section>
-
-<section data-markdown>
-<textarea data-template>
-## State of AI - Privacy
-
-* Cloud providers provide both SDK based protection accessing your LLM but also ensure that they don't store or train on your data.
-
-* Most AI providers today have 'Enterprise' tier that ensure data protection and rate limits.
-
-Note:
-* Everyone from weapon companies to Insurance are using LLMs in a way.
-* No real blockes are out there to sell to any customer, worth case you can always self host amazing models, Lamma models for example
-or some companies such as Mistral give you the tooling.
 
 </textarea>
 </section>
@@ -538,7 +557,8 @@ Note:
 <textarea data-template>
 ## RAG
 
-* knowledgeable
+* Knowledgeable
+
 * Reasoning
 
 Note:
@@ -546,8 +566,10 @@ Note:
 * Provide the ability to extend the knowledge base, avoid hallucinations 
 * Allows a more focued knowledge to answer from.
 * Any way you have to retreive data works - Data stored in DB, ELK, Graph DB
-* A technique that uses LLM for embedding will be presetned, but this is not mandatory
 * In the world of coding, embedding code is "classic", but we also grab data from IDE, LSP etc.
+* how you do retrieval is pretty important - One way to do retrieval is using dense representations (embeddings),
+ there are obviously many other ways to do retrieval - I will demonstrate dense retrieval using embeddings
+
 </textarea>
 </section>
 
