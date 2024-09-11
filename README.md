@@ -1,4 +1,4 @@
-# gophercon-israel-2014-talk
+# gophercon-israel-2024-talk
 This repository contains code and snippets from my talk
 
 ## Getting Started
